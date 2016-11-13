@@ -65,9 +65,14 @@ function getList(id) {
 }
 ```
 
-### Async Loading
+### CLI
 
-
+```sh
+$ npm install jaccard-index
+$ PATH=./node_modules/.bin:$PATH
+$ head node_modules/jaccard-index/test/example/*.txt
+$ jaccard-index --csv node_modules/jaccard-index/test/example/*.txt
+```
 
 ## SEE ALSO
 

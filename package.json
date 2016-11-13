@@ -3,6 +3,9 @@
   "description": "Promise-based Jaccard similarity coefficient index matrix calculation",
   "version": "0.1.0",
   "author": "@kawanet",
+  "bin": {
+    "jaccard-index": "bin/jaccard.cli.js"
+  },
   "bugs": {
     "url": "https://github.com/kawanet/jaccard-index/issues"
   },
