@@ -43,24 +43,19 @@ describe(TITLE, function() {
     assert.equal(jaccard.index(logs.buz, logs.foo), result.buz.foo);
   });
 
-  it("getScore(sourceId, targetId)", function() {
-    var sourceId = source[0];
-    var targetId = source[1];
-    return Jaccard(options).getScore(sourceId, targetId).then(check);
+  it("getIndex(sourceId, targetId)", function() {
+    return Jaccard(options).getIndex("foo", "bar").then(check);
 
     function check(index) {
-      assert.deepEqual(result[sourceId][targetId], index);
+      assert.deepEqual(result.foo.bar, index);
     }
   });
 
-  it("getMatrix(sourceList, targetList)", function() {
-    var sourceId = source[0];
-    return Jaccard(options).getMatrix([sourceId], source).then(check);
+  it("cachedIndex(sourceId, targetId)", function() {
+    return Jaccard(options).cachedIndex("bar", "buz").then(check);
 
-    function check(matrix) {
-      var obj = {};
-      obj[sourceId] = result[sourceId];
-      assert.deepEqual(matrix, obj);
+    function check(index) {
+      assert.deepEqual(result.bar.buz, index);
     }
   });
 
@@ -69,6 +64,22 @@ describe(TITLE, function() {
 
     function check(matrix) {
       assert.deepEqual(matrix, result);
+    }
+  });
+
+  it("getMatrix(sourceList, targetList)", function() {
+    return Jaccard(options).getMatrix(["foo"], source).then(check);
+
+    function check(matrix) {
+      assert.deepEqual(matrix, {foo: result.foo});
+    }
+  });
+
+  it("cachedMatrix(sourceList, targetList)", function() {
+    return Jaccard(options).cachedMatrix(["bar"], source).then(check);
+
+    function check(matrix) {
+      assert.deepEqual(matrix, {bar: result.bar});
     }
   });
 });

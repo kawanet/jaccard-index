@@ -1,6 +1,6 @@
 {
   "name": "jaccard-index",
-  "description": "Promise-based Jaccard similarity coefficient index matrix calculation",
+  "description": "Promise-based Jaccard similarity coefficient index matrix calculation framework",
   "version": "0.1.0",
   "author": "@kawanet",
   "bin": {

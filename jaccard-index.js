@@ -5,7 +5,7 @@ var promisen = require("promisen");
 module.exports = Jaccard;
 
 /**
- * Promise-based Jaccard similarity coefficient index matrix calculation
+ * Promise-based Jaccard similarity coefficient index matrix calculation framework
  *
  * @param [options] {Object}
  * @returns {Jaccard}
@@ -62,17 +62,20 @@ function Jaccard(options) {
  * Set undefined to disable any wait.
  *
  * @type {number|undefined}
+ * @default 0
  */
 
 Jaccard.prototype.wait = 0;
 
 /**
- * Time in millisecond to expire cache. 5 minutes per default.
+ * Time in millisecond to expire caches used in this module.
+ * One minute per default.
  *
  * @type {number}
+ * @default 60000
  */
 
-Jaccard.prototype.expire = 5 * 60 * 1000;
+Jaccard.prototype.expire = 60 * 1000;
 
 /**
  * Concurrency to run calculating.
@@ -81,21 +84,26 @@ Jaccard.prototype.expire = 5 * 60 * 1000;
  * Set 0 when no throttle limitation needed.
  *
  * @type {number}
+ * @default 1
  */
 
 Jaccard.prototype.throttle = 1;
 
 /**
- * Timeout until receiving result. 1 minutes per default.
+ * Timeout in millisecond until receiving result.
+ * One minute per default.
  *
  * @type {number}
+ * @default 60000
  */
 
 Jaccard.prototype.timeout = 60 * 1000;
 
 /**
- * Hash function. Override this only when you need another function than JSON.stringify()
+ * returns hash string made from ID.
+ * Override this only when you need any other hash function than JSON.stringify().
  *
+ * @method
  * @param id {string|Object}
  * @returns {string}
  */
@@ -103,60 +111,82 @@ Jaccard.prototype.timeout = 60 * 1000;
 Jaccard.prototype.hasher = JSON.stringify.bind(JSON);
 
 /**
- * False when sourceId and targetId are swappable.
+ * False when source and target are swappable.
  * Set true when they have a direction.
  *
  * @type {boolean}
+ * @default false
  */
 
 Jaccard.prototype.direction = false;
 
 /**
- * Load an array for sourceId or targetId with cached.
+ * retrieves an array for ID with the built-in cache mechanism.
+ * This calls getList() method when the cache not available.
  *
- * @param id {string|Object}
- * @returns {Array|Promise}
+ * @param id {string|Object} ID string or object
+ * @returns {Promise.<Array>}
  */
 
-Jaccard.prototype.cachedList = function cachedList(id) {
+Jaccard.prototype.cachedList = function(id) {
   var task = this.cachedList = wrap.call(this, this.getList); // lazy build
   return task.call(this, id);
 };
 
 /**
- * Load an array for sourceId or targetId without cached.
+ * retrieves an array for ID.
  * Override this before started.
  *
- * @param id {string|Object}
- * @returns {Array|Promise}
+ * @param id {string|Object} ID string or object
+ * @returns {Promise.<Array>}
+ * @example
+ * var fs = require("fs");
+ * var Jaccard = require("jaccard-index");
+ * var jaccard = Jaccard();
+ *
+ * jaccard.getList = getList;
+ *
+ * function getList(id) {
+ *   return new Promise(function(resolve, reject) {
+ *     var file = "test/example/" + id + ".txt";
+ *     fs.readFile(file, "utf-8", function(err, text) {
+ *       if (err) return reject(err);
+ *       var data = text.split("\n").filter(function(v) {
+ *         return !!v;
+ *       });
+ *       return resolve(data);
+ *     });
+ *   });
+ * }
  */
 
-Jaccard.prototype.getList = function getList(id) {
+Jaccard.prototype.getList = function(id) {
   throw new Error("getList function not implemented");
 };
 
 /**
- * Calculate matrix with cached.
+ * returns a matrix of Jaccard index for given IDs with the built-in cache mechanism.
+ * This calls getMatrix() method when the cache not available.
  *
- * @param sourceList {Array} array of source Ids
- * @param [targetList] {Array} array of target Ids
- * @returns {Object|Promise}
+ * @param sourceList {Array} array of source IDs
+ * @param [targetList] {Array} array of target IDs
+ * @returns {Promise.<Object>}
  */
 
-Jaccard.prototype.cachedMatrix = function cachedMatrix(sourceList, targetList) {
+Jaccard.prototype.cachedMatrix = function(sourceList, targetList) {
   var task = this.cachedMatrix = wrap.call(this, this.getMatrix); // lazy build
   return task.call(this, sourceList, targetList);
 };
 
 /**
- * Calculate matrix without cached.
+ * returns a matrix of Jaccard index for given IDs.
  *
- * @param sourceList {Array} array of source Ids
- * @param [targetList] {Array} array of target Ids
- * @returns {Object|Promise}
+ * @param sourceList {Array} array of source IDs
+ * @param [targetList] {Array} array of target IDs
+ * @returns {Promise.<Object>}
  */
 
-Jaccard.prototype.getMatrix = function getMatrix(sourceList, targetList) {
+Jaccard.prototype.getMatrix = function(sourceList, targetList) {
   var that = this;
   var matrix = {};
   var wait = that.wait && promisen.wait(that.wait);
@@ -174,9 +204,9 @@ Jaccard.prototype.getMatrix = function getMatrix(sourceList, targetList) {
       if (sourceKey === targetKey) return;
 
       if (!that.direction && targetId < sourceId) {
-        return that.cachedScore(targetId, sourceId).then(then); // swapped
+        return that.cachedIndex(targetId, sourceId).then(then); // swapped
       } else {
-        return that.cachedScore(sourceId, targetId).then(then);
+        return that.cachedIndex(sourceId, targetId).then(then);
       }
 
       function then(index) {
@@ -193,27 +223,28 @@ Jaccard.prototype.getMatrix = function getMatrix(sourceList, targetList) {
 };
 
 /**
- * Get Jaccard index between sourceId and targetId with cached.
+ * returns a Promise for Jaccard index between two IDs with the built-in cache mechanism.
+ * This calls getIndex() method when the cache not available.
  *
  * @param sourceId {string|Object}
  * @param targetId {string|Object}
- * @returns {Promise}
+ * @returns {Promise.<number|undefined>}
  */
 
-Jaccard.prototype.cachedScore = function cachedScore(sourceId, targetId) {
-  var task = this.cachedScore = wrap.call(this, this.getScore); // lazy build
+Jaccard.prototype.cachedIndex = function(sourceId, targetId) {
+  var task = this.cachedIndex = wrap.call(this, this.getIndex); // lazy build
   return task.call(this, sourceId, targetId);
 };
 
 /**
- * Get Jaccard index between sourceId and targetId without cached.
+ * returns a Promise for Jaccard index between two IDs.
  *
  * @param sourceId {string|Object}
  * @param targetId {string|Object}
- * @returns {Promise}
+ * @returns {Promise.<number|undefined>}
  */
 
-Jaccard.prototype.getScore = function getScore(sourceId, targetId) {
+Jaccard.prototype.getIndex = function(sourceId, targetId) {
   var that = this;
 
   return that.cachedList(sourceId).then(function(sourceLog) {
@@ -226,14 +257,24 @@ Jaccard.prototype.getScore = function getScore(sourceId, targetId) {
 };
 
 /**
- * Calculate Jaccard index between a pair of Arrays.
+ * calculates a Jaccard index between a pair of Arrays.
+ * Override this when you need any other index method than Jaccard index.
  *
  * @param sourceLog {Array}
  * @param targetLog {Array}
- * @returns {number|undefined|Promise}
+ * @returns {number|undefined|Promise.<number|undefined>}
+ * @example
+ * var Jaccard = require("jaccard-index");
+ * var jaccard = Jaccard();
+ *
+ * var foo = ["user1", "user2"];
+ * var bar = ["user2", "user3", "user4"];
+ * var index = jaccard.index(foo, bar);
+ *
+ * console.log(index); // => 0.25
  */
 
-Jaccard.prototype.index = function index(sourceLog, targetLog) {
+Jaccard.prototype.index = function(sourceLog, targetLog) {
   if (!sourceLog) return;
   if (!targetLog) return;
 
@@ -260,21 +301,23 @@ Jaccard.prototype.index = function index(sourceLog, targetLog) {
 };
 
 /**
- * Stringify ID. Just pass through per default.
+ * stringify ID for use at the result matrix.
+ * Just pass through per default.
  *
  * @method
  * @param id {string|Object} ID string or object
  * @returns {string}
  * @example
  * jaccard.getId = function(id) {
- *   return id; // pass through
+ *   return id.toUpperCase();
  * };
  */
 
 Jaccard.prototype.getId = void 0;
 
 /**
- * Return an index rounded. Do nothing per default.
+ * returns an Jaccard index number rounded.
+ * This does nothing per default.
  * Override this function to apply any precision.
  *
  * @method

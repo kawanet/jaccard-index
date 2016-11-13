@@ -1,8 +1,14 @@
 # jaccard-index
 
-Promise-based Jaccard similarity coefficient index matrix calculation
+Promise-based Jaccard similarity coefficient index matrix calculation framework
 
 [![npm version](https://badge.fury.io/js/jaccard-index.svg)](http://badge.fury.io/js/jaccard-index) [![Build Status](https://travis-ci.org/kawanet/jaccard-index.svg?branch=master)](https://travis-ci.org/kawanet/jaccard-index)
+
+## FEATURES
+
+- Async based on Promise
+- Built-in on-memory cache mechanism
+- Concurrency throttle for huge data set
 
 ## SYNOPSIS
 
@@ -34,7 +40,7 @@ function showResult(matrix) {
 }
 ```
 
-### Result Matrix
+### Jaccard Index Matrix
 
 ```json
 {
