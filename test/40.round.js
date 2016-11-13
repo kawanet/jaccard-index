@@ -20,45 +20,26 @@ describe(TITLE, function() {
     return logs[id];
   }
 
-  it("0.01", function() {
+  it("0.001", function() {
     var options = {
       getList: getList,
       round: round
     };
 
     var result = {
-      "foo": {"bar": 0.3, "buz": 0.7},
-      "bar": {"foo": 0.3, "buz": 0.2},
-      "buz": {"foo": 0.7, "bar": 0.2}
-    };
-
-    return Jaccard(options).getMatrix(source).then(check);
-
-    function round(score) {
-      return Math.round(score * 10) / 10;
-    }
-
-    function check(score) {
-      assert.deepEqual(result, score);
-    }
-  });
-
-  it("round: null", function() {
-    var options = {
-      getList: getList,
-      round: null
-    };
-
-    var result = {
-      "foo": {"bar": 0.25, "buz": 2 / 3},
+      "foo": {"bar": 0.25, "buz": 0.667},
       "bar": {"foo": 0.25, "buz": 0.2},
-      "buz": {"foo": 2 / 3, "bar": 0.2}
+      "buz": {"foo": 0.667, "bar": 0.2}
     };
 
     return Jaccard(options).getMatrix(source).then(check);
 
-    function check(score) {
-      assert.deepEqual(result, score);
+    function round(index) {
+      return Math.round(index * 1000) / 1000;
+    }
+
+    function check(matrix) {
+      assert.deepEqual(result, matrix);
     }
   });
 });

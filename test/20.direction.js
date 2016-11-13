@@ -17,14 +17,13 @@ describe(TITLE, function() {
   var source = Object.keys(logs); // foo, bar, buz
 
   var result = {
-    "foo": {"bar": 0.25, "buz": 0.667},
+    "foo": {"bar": 0.25, "buz": 2 / 3},
     "bar": {"foo": 0.25, "buz": 0.2},
-    "buz": {"foo": 0.667, "bar": 0.2}
+    "buz": {"foo": 2 / 3, "bar": 0.2}
   };
 
   function getList(id) {
-    // return Promise.resolve(logs[id]); // async
-    return logs[id]; // sync
+    return logs[id];
   }
 
   it("direction: true", function() {
@@ -50,14 +49,14 @@ describe(TITLE, function() {
   });
 
   function wrapCalcCounter(jaccard) {
-    var _calc = jaccard.calc;
-    jaccard.calc = calc; // override
+    var _index = jaccard.index;
+    jaccard.index = index; // override
     jaccard._counter = 0;
     return jaccard;
 
-    function calc(source, target) {
+    function index(source, target) {
       this._counter++;
-      return _calc.call(this, source, target);
+      return _index.call(this, source, target);
     }
   }
 });

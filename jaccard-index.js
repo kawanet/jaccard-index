@@ -42,9 +42,9 @@ module.exports = Jaccard;
  *
  * // Result:
  * // {
- * //   "foo": {"bar": 0.25, "buz": 0.667},
+ * //   "foo": {"bar": 0.25, "buz": 0.6666666666666666},
  * //   "bar": {"foo": 0.25, "buz": 0.2},
- * //   "buz": {"foo": 0.667, "bar": 0.2}
+ * //   "buz": {"foo": 0.6666666666666666, "bar": 0.2}
  * // }
  */
 
@@ -165,12 +165,12 @@ Jaccard.prototype.getMatrix = function getMatrix(sourceList, targetList) {
   return promisen.eachSeries(sourceList, sourceIt)().then(done);
 
   function sourceIt(sourceId) {
-    var sourceKey = that.getId(sourceId);
+    var sourceKey = that.getId ? that.getId(sourceId) : sourceId;
     var row = matrix[sourceKey] || (matrix[sourceKey] = {});
     return promisen.eachSeries(targetList, targetIt)();
 
     function targetIt(targetId) {
-      var targetKey = that.getId(targetId);
+      var targetKey = that.getId ? that.getId(targetId) : targetId;
       if (sourceKey === targetKey) return;
 
       if (!that.direction && targetId < sourceId) {
@@ -179,9 +179,9 @@ Jaccard.prototype.getMatrix = function getMatrix(sourceList, targetList) {
         return that.cachedScore(sourceId, targetId).then(then);
       }
 
-      function then(score) {
-        if (score == null) return;
-        row[targetKey] = that.round ? that.round(score) : score;
+      function then(index) {
+        if (index == null) return;
+        row[targetKey] = that.round ? that.round(index) : index;
         return wait && wait();
       }
     }
@@ -193,7 +193,7 @@ Jaccard.prototype.getMatrix = function getMatrix(sourceList, targetList) {
 };
 
 /**
- * Get a score between sourceId and targetId with cached.
+ * Get Jaccard index between sourceId and targetId with cached.
  *
  * @param sourceId {string|Object}
  * @param targetId {string|Object}
@@ -206,7 +206,7 @@ Jaccard.prototype.cachedScore = function cachedScore(sourceId, targetId) {
 };
 
 /**
- * Get a score between sourceId and targetId without cached.
+ * Get Jaccard index between sourceId and targetId without cached.
  *
  * @param sourceId {string|Object}
  * @param targetId {string|Object}
@@ -220,20 +220,20 @@ Jaccard.prototype.getScore = function getScore(sourceId, targetId) {
     if (!sourceLog) return;
     return that.cachedList(targetId).then(function(targetLog) {
       if (!targetLog) return;
-      return that.calc(sourceLog, targetLog);
+      return that.index(sourceLog, targetLog);
     });
   });
 };
 
 /**
- * Calculate Jaccard index score between a pair of Arrays.
+ * Calculate Jaccard index between a pair of Arrays.
  *
  * @param sourceLog {Array}
  * @param targetLog {Array}
- * @returns {number|undefined}
+ * @returns {number|undefined|Promise}
  */
 
-Jaccard.prototype.calc = function calc(sourceLog, targetLog) {
+Jaccard.prototype.index = function index(sourceLog, targetLog) {
   if (!sourceLog) return;
   if (!targetLog) return;
 
@@ -260,27 +260,33 @@ Jaccard.prototype.calc = function calc(sourceLog, targetLog) {
 };
 
 /**
- * Stringify ID.
+ * Stringify ID. Just pass through per default.
  *
+ * @method
  * @param id {string|Object} ID string or object
  * @returns {string}
+ * @example
+ * jaccard.getId = function(id) {
+ *   return id; // pass through
+ * };
  */
 
-Jaccard.prototype.getId = function(id) {
-  return id;
-};
+Jaccard.prototype.getId = void 0;
 
 /**
- * Return a number rounded.
- * Override this function to apply another precision than 0.001.
+ * Return an index rounded. Do nothing per default.
+ * Override this function to apply any precision.
  *
- * @param score {number} Jaccard index
+ * @method
+ * @param index {number} Jaccard index
  * @returns {number}
+ * @example
+ * jaccard.round = function(index) {
+ *   return Math.round(index * 1000) / 1000;
+ * };
  */
 
-Jaccard.prototype.round = function(score) {
-  return Math.round(score * 1000) / 1000;
-};
+Jaccard.prototype.round = void 0;
 
 /**
  * @private

@@ -34,9 +34,9 @@ describe(TITLE, function() {
   }
 
   var result = {
-    "foo": {"bar": 0.25, "buz": 0.667},
+    "foo": {"bar": 0.25, "buz": 2 / 3},
     "bar": {"foo": 0.25, "buz": 0.2},
-    "buz": {"foo": 0.667, "bar": 0.2}
+    "buz": {"foo": 2 / 3, "bar": 0.2}
   };
 
   it("getId", function() {

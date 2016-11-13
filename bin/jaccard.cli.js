@@ -26,6 +26,10 @@ function getId(file) {
   return file.replace(/^.*\//, "");
 }
 
+function round(index) {
+  return Math.round(index * 1000) / 1000;
+}
+
 function matrixToTable(matrix) {
   var columns = Object.keys(matrix);
   var table = columns.map(function(rowId) {
@@ -67,6 +71,7 @@ function CLI() {
   jaccard.expire = 1000;
   jaccard.getList = getList;
   jaccard.getId = getId;
+  jaccard.round = round;
 
   return jaccard.getMatrix(args).then(function(matrix) {
     return csv ? tableToCSV(matrixToTable(matrix)) : JSON.stringify(matrix, null, 2);
