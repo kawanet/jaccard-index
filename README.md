@@ -6,9 +6,11 @@ Promise-based Jaccard similarity coefficient index matrix calculation framework
 
 ## FEATURES
 
-- Async based on Promise
-- Built-in on-memory cache mechanism
-- Concurrency throttle for huge data set
+- Fast [Jaccard index](https://en.wikipedia.org/wiki/Jaccard_index) calculation for [collaborative filtering](https://en.wikipedia.org/wiki/Collaborative_filtering)
+- Asynchronous data source loading based on Promise
+- Built-in on-memory cache mechanism with automatic expiration
+- Concurrency throttle for huge data sets
+- Both directional and no-directional graph matrix
 
 ## SYNOPSIS
 
@@ -40,7 +42,7 @@ function showResult(matrix) {
 }
 ```
 
-### Jaccard Index Matrix
+### Result:
 
 ```json
 {
@@ -50,7 +52,7 @@ function showResult(matrix) {
 }
 ```
 
-### Async Loading
+### Async Loading:
 
 `getList()` method could return a Promise.
 
@@ -71,7 +73,7 @@ function getList(id) {
 }
 ```
 
-### Jaccard Index
+### Jaccard Index:
 
 `index()` method accepts a pair of Arrays and returns a Jaccard index.
 
@@ -109,7 +111,7 @@ $ jaccard-index --csv node_modules/jaccard-index/test/example/*.txt
 
 - [https://travis-ci.org/kawanet/jaccard-index](https://travis-ci.org/kawanet/jaccard-index)
 
-### LICENSE
+## LICENSE
 
 MIT License
 
