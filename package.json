@@ -1,0 +1,34 @@
+{
+  "name": "jaccard-index",
+  "description": "Promise-based Jaccard similarity coefficient index matrix calculation",
+  "version": "0.1.0",
+  "author": "@kawanet",
+  "bugs": {
+    "url": "https://github.com/kawanet/jaccard-index/issues"
+  },
+  "dependencies": {
+    "promisen": "^0.1.1"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "jshint": "^2.9.4",
+    "mocha": "^3.1.2"
+  },
+  "homepage": "https://github.com/kawanet/jaccard-index#readme",
+  "jshintConfig": {
+    "node": true,
+    "undef": true
+  },
+  "license": "MIT",
+  "main": "jaccard-index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kawanet/jaccard-index.git"
+  },
+  "scripts": {
+    "fixpack": "fixpack",
+    "jshint": "./node_modules/.bin/jshint *.js* test",
+    "mocha": "./node_modules/.bin/mocha test",
+    "test": "npm run jshint && npm run mocha"
+  }
+}
