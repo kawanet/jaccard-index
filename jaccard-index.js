@@ -237,26 +237,26 @@ Jaccard.prototype.index = function index(sourceLog, targetLog) {
   if (!sourceLog) return;
   if (!targetLog) return;
 
+  var sourceLen = sourceLog.length;
+  var targetLen = targetLog.length;
+
+  if (!sourceLen) return;
+  if (!targetLen) return;
+
+  var shorterLog = (sourceLen < targetLen) ? sourceLog : targetLog;
+  var longerLog = (sourceLen < targetLen) ? targetLog : sourceLog;
+
   var map = {};
-
-  sourceLog.forEach(function(id) {
-    map[id] |= 1;
+  Array.prototype.forEach.call(shorterLog, function(id) {
+    map[id] = 1;
   });
 
-  targetLog.forEach(function(id) {
-    map[id] |= 2;
+  var match = 0;
+  Array.prototype.forEach.call(longerLog, function(id) {
+    if (map[id]) match++;
   });
 
-  var list = Object.keys(map);
-  var OR = list.length;
-  if (!OR) return;
-
-  var AND = list.filter(isAND).length;
-  return AND / OR;
-
-  function isAND(id) {
-    return map[id] === 3;
-  }
+  return match / (sourceLen + targetLen - match);
 };
 
 /**
