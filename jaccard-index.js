@@ -178,7 +178,7 @@ Jaccard.prototype.getMatrix = function getMatrix(sourceList, targetList) {
 
       function then(score) {
         if (score == null) return;
-        row[targetId] = Math.round(score * 1000) / 1000;
+        row[targetId] = that.round ? that.round(score) : score;
         return wait && wait();
       }
     }
@@ -254,6 +254,18 @@ Jaccard.prototype.calc = function calc(sourceLog, targetLog) {
   function isAND(id) {
     return map[id] === 3;
   }
+};
+
+/**
+ * Return a number rounded.
+ * Override this function to apply another precision than 0.001.
+ *
+ * @param score {number} Jaccard index
+ * @returns {number}
+ */
+
+Jaccard.prototype.round = function(score) {
+  return Math.round(score * 1000) / 1000;
 };
 
 /**
