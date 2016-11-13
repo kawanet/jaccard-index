@@ -30,7 +30,7 @@
   },
   "scripts": {
     "fixpack": "fixpack",
-    "jshint": "./node_modules/.bin/jshint *.js* test",
+    "jshint": "./node_modules/.bin/jshint *.js* bin test",
     "mocha": "./node_modules/.bin/mocha test",
     "test": "npm run jshint && npm run mocha"
   }

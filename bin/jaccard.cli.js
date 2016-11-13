@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+/* jshint eqnull:true */
+
 var fs = require("fs");
 var Jaccard = require("../");
 
