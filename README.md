@@ -65,7 +65,22 @@ function getList(id) {
 }
 ```
 
-### CLI
+### Jaccard Index
+
+`index()` method accepts a pair of Arrays and returns a Jaccard index.
+
+```js
+var Jaccard = require("jaccard-index");
+var jaccard = Jaccard();
+
+var foo = ["user1", "user2"];
+var bar = ["user2", "user3", "user4"];
+var index = jaccard.index(foo, bar);
+
+console.log(index); // => 0.25
+```
+
+## CLI
 
 ```sh
 $ npm install jaccard-index
