@@ -114,7 +114,7 @@ Jaccard.prototype.direction = false;
 /**
  * Load an array for sourceId or targetId with cached.
  *
- * @param id {string}
+ * @param id {string|Object}
  * @returns {Array|Promise}
  */
 
@@ -160,15 +160,18 @@ Jaccard.prototype.getMatrix = function getMatrix(sourceList, targetList) {
   var that = this;
   var matrix = {};
   var wait = that.wait && promisen.wait(that.wait);
+  if (!targetList) targetList = sourceList;
 
   return promisen.eachSeries(sourceList, sourceIt)().then(done);
 
   function sourceIt(sourceId) {
-    var row = matrix[sourceId] || (matrix[sourceId] = {});
-    return promisen.eachSeries(targetList || sourceList, targetIt)();
+    var sourceKey = that.getId(sourceId);
+    var row = matrix[sourceKey] || (matrix[sourceKey] = {});
+    return promisen.eachSeries(targetList, targetIt)();
 
     function targetIt(targetId) {
-      if (sourceId === targetId) return;
+      var targetKey = that.getId(targetId);
+      if (sourceKey === targetKey) return;
 
       if (!that.direction && targetId < sourceId) {
         return that.cachedScore(targetId, sourceId).then(then); // swapped
@@ -178,7 +181,7 @@ Jaccard.prototype.getMatrix = function getMatrix(sourceList, targetList) {
 
       function then(score) {
         if (score == null) return;
-        row[targetId] = that.round ? that.round(score) : score;
+        row[targetKey] = that.round ? that.round(score) : score;
         return wait && wait();
       }
     }
@@ -254,6 +257,17 @@ Jaccard.prototype.calc = function calc(sourceLog, targetLog) {
   function isAND(id) {
     return map[id] === 3;
   }
+};
+
+/**
+ * Stringify ID.
+ *
+ * @param id {string|Object} ID string or object
+ * @returns {string}
+ */
+
+Jaccard.prototype.getId = function(id) {
+  return id;
 };
 
 /**
