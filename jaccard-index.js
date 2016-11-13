@@ -100,7 +100,8 @@ Jaccard.prototype.throttle = 1;
 Jaccard.prototype.timeout = 60 * 1000;
 
 /**
- * returns hash string made from ID.
+ * returns a hash string made from ID object.
+ * The built-in cache mechanism works with the hash string.
  * Override this only when you need any other hash function than JSON.stringify().
  *
  * @method
@@ -108,7 +109,7 @@ Jaccard.prototype.timeout = 60 * 1000;
  * @returns {string}
  */
 
-Jaccard.prototype.hasher = JSON.stringify.bind(JSON);
+Jaccard.prototype.getIdHash = JSON.stringify.bind(JSON);
 
 /**
  * False when source and target are swappable.
@@ -135,10 +136,10 @@ Jaccard.prototype.cachedList = function(id) {
 
 /**
  * retrieves an array for ID.
- * Override this before started.
+ * Overriding this method is required before calling getMatrix() or getIndex() methods.
  *
  * @param id {string|Object} ID string or object
- * @returns {Promise.<Array>}
+ * @returns {Array|Promise.<Array>}
  * @example
  * var fs = require("fs");
  * var Jaccard = require("jaccard-index");
@@ -190,6 +191,8 @@ Jaccard.prototype.getMatrix = function(sourceList, targetList) {
   var that = this;
   var matrix = {};
   var wait = that.wait && promisen.wait(that.wait);
+  var hasGetId = (that.getId !== through);
+  var hasRound = (that.round !== through);
   if (!targetList) targetList = sourceList;
 
   return promisen.eachSeries(sourceList, sourceIt)().then(done);
@@ -200,7 +203,7 @@ Jaccard.prototype.getMatrix = function(sourceList, targetList) {
     return promisen.eachSeries(targetList, targetIt)();
 
     function targetIt(targetId) {
-      var targetKey = that.getId ? that.getId(targetId) : targetId;
+      var targetKey = hasGetId ? that.getId(targetId) : targetId;
       if (sourceKey === targetKey) return;
 
       if (!that.direction && targetId < sourceId) {
@@ -211,7 +214,7 @@ Jaccard.prototype.getMatrix = function(sourceList, targetList) {
 
       function then(index) {
         if (index == null) return;
-        row[targetKey] = that.round ? that.round(index) : index;
+        row[targetKey] = hasRound ? that.round(index) : index;
         return wait && wait();
       }
     }
@@ -223,7 +226,7 @@ Jaccard.prototype.getMatrix = function(sourceList, targetList) {
 };
 
 /**
- * returns a Promise for Jaccard index between two IDs with the built-in cache mechanism.
+ * returns a Promise for Jaccard index between the pair of IDs with the built-in cache mechanism.
  * This calls getIndex() method when the cache not available.
  *
  * @param sourceId {string|Object}
@@ -237,7 +240,7 @@ Jaccard.prototype.cachedIndex = function(sourceId, targetId) {
 };
 
 /**
- * returns a Promise for Jaccard index between two IDs.
+ * returns a Promise for Jaccard index between the pair of IDs.
  *
  * @param sourceId {string|Object}
  * @param targetId {string|Object}
@@ -301,7 +304,7 @@ Jaccard.prototype.index = function(sourceLog, targetLog) {
 };
 
 /**
- * stringify ID for use at the result matrix.
+ * stringify ID object to be placed at the result matrix.
  * Just pass through per default.
  *
  * @method
@@ -313,10 +316,10 @@ Jaccard.prototype.index = function(sourceLog, targetLog) {
  * };
  */
 
-Jaccard.prototype.getId = void 0;
+Jaccard.prototype.getId = through;
 
 /**
- * returns an Jaccard index number rounded.
+ * returns an Jaccard index number rounded to be placed at the result matrix.
  * This does nothing per default.
  * Override this function to apply any precision.
  *
@@ -329,7 +332,7 @@ Jaccard.prototype.getId = void 0;
  * };
  */
 
-Jaccard.prototype.round = void 0;
+Jaccard.prototype.round = through;
 
 /**
  * @private
@@ -343,7 +346,7 @@ function wrap(func) {
     task = promisen(task);
   }
   if (this.expire) {
-    task = promisen.memoize(task, this.expire, this.hasher);
+    task = promisen.memoize(task, this.expire, this.getIdHash);
   }
   return wrapped;
 
@@ -355,4 +358,12 @@ function wrap(func) {
   function run(arg) {
     return func.apply(this, arg); // multiple arguments allowed
   }
+}
+
+/**
+ * @private
+ */
+
+function through(value) {
+  return value;
 }
