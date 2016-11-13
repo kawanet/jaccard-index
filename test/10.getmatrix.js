@@ -11,12 +11,12 @@ describe(TITLE, function() {
   // var Jaccard = require("jaccard-index");
 
   var logs = {
-    foo: ["user1", "user2"],
-    bar: ["user2", "user3", "user4"],
-    buz: ["user1", "user2", "user5"]
+    "item1": ["user1", "user2"],
+    "item2": ["user2", "user3", "user4"],
+    "item3": ["user1", "user2", "user5"]
   };
 
-  var source = Object.keys(logs); // foo, bar, buz
+  var source = Object.keys(logs); // item1, item2, item3
 
   var options = {
     direction: false,
@@ -31,31 +31,31 @@ describe(TITLE, function() {
   }
 
   var result = {
-    "foo": {"bar": 0.25, "buz": 2 / 3},
-    "bar": {"foo": 0.25, "buz": 0.2},
-    "buz": {"foo": 2 / 3, "bar": 0.2}
+    "item1": {"item2": 0.25, "item3": 2 / 3},
+    "item2": {"item1": 0.25, "item3": 0.2},
+    "item3": {"item1": 2 / 3, "item2": 0.2}
   };
 
   it("index(sourceLog, targetLog)", function() {
     var jaccard = Jaccard();
-    assert.equal(jaccard.index(logs.foo, logs.bar), result.foo.bar);
-    assert.equal(jaccard.index(logs.bar, logs.buz), result.bar.buz);
-    assert.equal(jaccard.index(logs.buz, logs.foo), result.buz.foo);
+    assert.equal(jaccard.index(logs.item1, logs.item2), result.item1.item2);
+    assert.equal(jaccard.index(logs.item2, logs.item3), result.item2.item3);
+    assert.equal(jaccard.index(logs.item3, logs.item1), result.item3.item1);
   });
 
   it("getIndex(sourceId, targetId)", function() {
-    return Jaccard(options).getIndex("foo", "bar").then(check);
+    return Jaccard(options).getIndex("item1", "item2").then(check);
 
     function check(index) {
-      assert.deepEqual(result.foo.bar, index);
+      assert.deepEqual(result.item1.item2, index);
     }
   });
 
   it("cachedIndex(sourceId, targetId)", function() {
-    return Jaccard(options).cachedIndex("bar", "buz").then(check);
+    return Jaccard(options).cachedIndex("item2", "item3").then(check);
 
     function check(index) {
-      assert.deepEqual(result.bar.buz, index);
+      assert.deepEqual(result.item2.item3, index);
     }
   });
 
@@ -68,18 +68,18 @@ describe(TITLE, function() {
   });
 
   it("getMatrix(sourceList, targetList)", function() {
-    return Jaccard(options).getMatrix(["foo"], source).then(check);
+    return Jaccard(options).getMatrix(["item1"], source).then(check);
 
     function check(matrix) {
-      assert.deepEqual(matrix, {foo: result.foo});
+      assert.deepEqual(matrix, {"item1": result.item1});
     }
   });
 
   it("cachedMatrix(sourceList, targetList)", function() {
-    return Jaccard(options).cachedMatrix(["bar"], source).then(check);
+    return Jaccard(options).cachedMatrix(["item2"], source).then(check);
 
     function check(matrix) {
-      assert.deepEqual(matrix, {bar: result.bar});
+      assert.deepEqual(matrix, {"item2": result.item2});
     }
   });
 });

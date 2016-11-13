@@ -16,12 +16,12 @@ module.exports = Jaccard;
  * var Jaccard = require("jaccard-index");
  *
  * var logs = {
- *   foo: ["user1", "user2"],
- *   bar: ["user2", "user3", "user4"],
- *   buz: ["user1", "user2", "user5"]
+ *   "item1": ["user1", "user2"],
+ *   "item2": ["user2", "user3", "user4"],
+ *   "item3": ["user1", "user2", "user5"]
  * };
  *
- * var source = Object.keys(logs); // foo, bar, buz
+ * var source = Object.keys(logs); // item1, item2, item3
  *
  * var options = {
  *   direction: false,
@@ -42,9 +42,9 @@ module.exports = Jaccard;
  *
  * // Result:
  * // {
- * //   "foo": {"bar": 0.25, "buz": 0.6666666666666666},
- * //   "bar": {"foo": 0.25, "buz": 0.2},
- * //   "buz": {"foo": 0.6666666666666666, "bar": 0.2}
+ * //   "item1": {"item2": 0.25, "item3": 0.6666666666666666},
+ * //   "item2": {"item1": 0.25, "item3": 0.2},
+ * //   "item3": {"item1": 0.6666666666666666, "item2": 0.2}
  * // }
  */
 
@@ -270,9 +270,9 @@ Jaccard.prototype.getIndex = function(sourceId, targetId) {
  * var Jaccard = require("jaccard-index");
  * var jaccard = Jaccard();
  *
- * var foo = ["user1", "user2"];
- * var bar = ["user2", "user3", "user4"];
- * var index = jaccard.index(foo, bar);
+ * var item1 = ["user1", "user2"];
+ * var item2 = ["user2", "user3", "user4"];
+ * var index = jaccard.index(item1, item2);
  *
  * console.log(index); // => 0.25
  */

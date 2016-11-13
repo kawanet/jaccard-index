@@ -9,12 +9,12 @@ var fs = require("fs");
 var TITLE = __filename.replace(/^.*\//, "");
 
 describe(TITLE, function() {
-  var source = ["foo", "bar", "buz"];
+  var source = ["item1", "item2", "item3"];
 
   var result = {
-    "foo": {"bar": 0.25, "buz": 2 / 3},
-    "bar": {"foo": 0.25, "buz": 0.2},
-    "buz": {"foo": 2 / 3, "bar": 0.2}
+    "item1": {"item2": 0.25, "item3": 2 / 3},
+    "item2": {"item1": 0.25, "item3": 0.2},
+    "item3": {"item1": 2 / 3, "item2": 0.2}
   };
 
   function getList(id) {

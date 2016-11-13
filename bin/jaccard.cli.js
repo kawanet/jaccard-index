@@ -63,7 +63,7 @@ function CLI() {
 
   if (!args.length) {
     var cmd = process.argv[1].split("/").pop();
-    console.warn("Usage: " + cmd + " [--csv] foo.txt bar.txt buz.txt...");
+    console.warn("Usage: " + cmd + " [--csv] item1.txt item2.txt item3.txt...");
     process.exit(1);
   }
 

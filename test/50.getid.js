@@ -9,9 +9,9 @@ var TITLE = __filename.replace(/^.*\//, "");
 
 describe(TITLE, function() {
   var logs = {
-    FOO: ["user1", "user2"],
-    BAR: ["user2", "user3", "user4"],
-    BUZ: ["user1", "user2", "user5"]
+    "ITEM1": ["user1", "user2"],
+    "ITEM2": ["user2", "user3", "user4"],
+    "ITEM3": ["user1", "user2", "user5"]
   };
 
   var source = Object.keys(logs).map(wrapId);
@@ -34,9 +34,9 @@ describe(TITLE, function() {
   }
 
   var result = {
-    "foo": {"bar": 0.25, "buz": 2 / 3},
-    "bar": {"foo": 0.25, "buz": 0.2},
-    "buz": {"foo": 2 / 3, "bar": 0.2}
+    "item1": {"item2": 0.25, "item3": 2 / 3},
+    "item2": {"item1": 0.25, "item3": 0.2},
+    "item3": {"item1": 2 / 3, "item2": 0.2}
   };
 
   it("getId", function() {

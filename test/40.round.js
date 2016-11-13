@@ -9,12 +9,12 @@ var TITLE = __filename.replace(/^.*\//, "");
 
 describe(TITLE, function() {
   var logs = {
-    foo: ["user1", "user2"],
-    bar: ["user2", "user3", "user4"],
-    buz: ["user1", "user2", "user5"]
+    "item1": ["user1", "user2"],
+    "item2": ["user2", "user3", "user4"],
+    "item3": ["user1", "user2", "user5"]
   };
 
-  var source = Object.keys(logs); // foo, bar, buz
+  var source = Object.keys(logs); // item1, item2, item3
 
   function getList(id) {
     return logs[id];
@@ -27,9 +27,9 @@ describe(TITLE, function() {
     };
 
     var result = {
-      "foo": {"bar": 0.25, "buz": 0.667},
-      "bar": {"foo": 0.25, "buz": 0.2},
-      "buz": {"foo": 0.667, "bar": 0.2}
+      "item1": {"item2": 0.25, "item3": 0.667},
+      "item2": {"item1": 0.25, "item3": 0.2},
+      "item3": {"item1": 0.667, "item2": 0.2}
     };
 
     return Jaccard(options).getMatrix(source).then(check);
