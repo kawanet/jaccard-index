@@ -4,7 +4,7 @@ Promise-based Jaccard similarity coefficient index matrix calculation
 
 [![npm version](https://badge.fury.io/js/jaccard-index.svg)](http://badge.fury.io/js/jaccard-index) [![Build Status](https://travis-ci.org/kawanet/jaccard-index.svg?branch=master)](https://travis-ci.org/kawanet/jaccard-index)
 
-### Synopsis
+## SYNOPSIS
 
 ```js
 var Jaccard = require("jaccard-index");
@@ -26,8 +26,7 @@ var options = {
 Jaccard(options).getMatrix(source).then(showResult).catch(console.warn);
 
 function getList(id) {
-  return Promise.resolve(logs[id]); // async
-  // return logs[id]; // sync
+  return logs[id];
 }
 
 function showResult(matrix) {
@@ -35,7 +34,7 @@ function showResult(matrix) {
 }
 ```
 
-Result matrix:
+### Result Matrix
 
 ```json
 {
@@ -44,6 +43,31 @@ Result matrix:
   "buz": {"foo": 0.667, "bar": 0.2}
 }
 ```
+
+### Async Loading
+
+`getList()` method could return a Promise.
+
+```js
+var fs = require("fs");
+
+function getList(id) {
+  return new Promise(function(resolve, reject) {
+    var file = "test/example/" + id + ".txt";
+    fs.readFile(file, "utf-8", function(err, text) {
+      if (err) return reject(err);
+      var data = text.split("\n").filter(function(v) {
+        return !!v;
+      });
+      return resolve(data);
+    });
+  });
+}
+```
+
+### Async Loading
+
+
 
 ## SEE ALSO
 
@@ -59,7 +83,9 @@ Result matrix:
 
 - [https://travis-ci.org/kawanet/jaccard-index](https://travis-ci.org/kawanet/jaccard-index)
 
-### The MIT License (MIT)
+### LICENSE
+
+MIT License
 
 Copyright (c) 2016 Yusuke Kawasaki
 

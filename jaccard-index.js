@@ -263,7 +263,9 @@ Jaccard.prototype.calc = function calc(sourceLog, targetLog) {
 function wrap(func) {
   var task = run;
   if (this.throttle || this.timeout) {
-    task = promisen.throttle(run, this.throttle, this.timeout);
+    task = promisen.throttle(task, this.throttle, this.timeout);
+  } else {
+    task = promisen(task);
   }
   if (this.expire) {
     task = promisen.memoize(task, this.expire, this.hasher);
