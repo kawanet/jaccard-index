@@ -19,8 +19,6 @@ describe(TITLE, function() {
   var source = Object.keys(logs); // item1, item2, item3
 
   var options = {
-    direction: false,
-    expire: 1000,
     getList: getList
   };
 
@@ -59,14 +57,6 @@ describe(TITLE, function() {
     }
   });
 
-  it("getMatrix(sourceList)", function() {
-    return Jaccard(options).getMatrix(source).then(check);
-
-    function check(matrix) {
-      assert.deepEqual(matrix, result);
-    }
-  });
-
   it("getMatrix(sourceList, targetList)", function() {
     return Jaccard(options).getMatrix(["item1"], source).then(check);
 
@@ -75,11 +65,11 @@ describe(TITLE, function() {
     }
   });
 
-  it("cachedMatrix(sourceList, targetList)", function() {
-    return Jaccard(options).cachedMatrix(["item2"], source).then(check);
+  it("getMatrix(sourceList)", function() {
+    return Jaccard(options).getMatrix(source).then(check);
 
     function check(matrix) {
-      assert.deepEqual(matrix, {"item2": result.item2});
+      assert.deepEqual(matrix, result);
     }
   });
 });

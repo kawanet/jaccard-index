@@ -6,8 +6,8 @@ Promise-based Jaccard similarity coefficient index matrix calculation framework
 
 ## FEATURES
 
-- Fast [Jaccard index](https://en.wikipedia.org/wiki/Jaccard_index) calculation for [collaborative filtering](https://en.wikipedia.org/wiki/Collaborative_filtering)
-- Asynchronous data source loading based on Promise
+- Fast [Jaccard index](https://en.wikipedia.org/wiki/Jaccard_index) calculation framework for [collaborative filtering](https://en.wikipedia.org/wiki/Collaborative_filtering)
+- Promise-based asynchronous data source loading
 - Built-in on-memory cache mechanism with automatic expiration
 - Concurrency throttle for huge data sets
 - Both directional and no-directional graph matrix
@@ -26,19 +26,19 @@ var logs = {
 var source = Object.keys(logs); // item1, item2, item3
 
 var options = {
-  direction: false,
-  expire: 1000,
   getList: getList
 };
 
 Jaccard(options).getMatrix(source).then(showResult).catch(console.warn);
 
 function getList(id) {
-  return logs[id];
+  return Promise.resolve(logs[id]); // async loading
+  // return logs[id]; // sync loading
 }
 
 function showResult(matrix) {
-  console.log(JSON.stringify(matrix, null, 1));
+  console.log(JSON.stringify(matrix, null, 2));
+  process.exit(0);
 }
 ```
 
@@ -64,10 +64,10 @@ function getList(id) {
     var file = "test/example/" + id + ".txt";
     fs.readFile(file, "utf-8", function(err, text) {
       if (err) return reject(err);
-      var data = text.split("\n").filter(function(v) {
+      var list = text.split("\n").filter(function(v) {
         return !!v;
       });
-      return resolve(data);
+      return resolve(list);
     });
   });
 }

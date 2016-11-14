@@ -24,8 +24,6 @@ module.exports = Jaccard;
  * var source = Object.keys(logs); // item1, item2, item3
  *
  * var options = {
- *   direction: false,
- *   expire: 1000,
  *   getList: getList
  * };
  *
@@ -37,7 +35,8 @@ module.exports = Jaccard;
  * }
  *
  * function showResult(matrix) {
- *   console.log(JSON.stringify(matrix, null, 1));
+ *   console.log(JSON.stringify(matrix, null, 2));
+ *   process.exit(0);
  * }
  *
  * // Result:
@@ -59,7 +58,7 @@ function Jaccard(options) {
 
 /**
  * Time in millisecond to wait between each calculating iteration to avoid Node process locked.
- * Set undefined to disable any wait.
+ * Set null to disable any wait.
  *
  * @type {number|undefined}
  * @default 0
@@ -70,6 +69,7 @@ Jaccard.prototype.wait = 0;
 /**
  * Time in millisecond to expire caches used in this module.
  * One minute per default.
+ * Set null to disable the cache.
  *
  * @type {number}
  * @default 60000
@@ -78,10 +78,10 @@ Jaccard.prototype.wait = 0;
 Jaccard.prototype.expire = 60 * 1000;
 
 /**
- * Concurrency to run calculating.
- * Only single task allowed per default.
- * The other tasks will wait until the first task completed.
- * Set 0 when no throttle limitation needed.
+ * Concurrency to run data loading and index calculating.
+ * Only single task each allowed per default.
+ * The other tasks would wait to start until the first task completed.
+ * Set null to disable the throttle.
  *
  * @type {number}
  * @default 1
@@ -92,6 +92,7 @@ Jaccard.prototype.throttle = 1;
 /**
  * Timeout in millisecond until receiving result.
  * One minute per default.
+ * Set null to disable the timeout.
  *
  * @type {number}
  * @default 60000
@@ -163,20 +164,6 @@ Jaccard.prototype.cachedList = function(id) {
 
 Jaccard.prototype.getList = function(id) {
   throw new Error("getList function not implemented");
-};
-
-/**
- * returns a matrix of Jaccard index for given IDs with the built-in cache mechanism.
- * This calls getMatrix() method when the cache not available.
- *
- * @param sourceList {Array} array of source IDs
- * @param [targetList] {Array} array of target IDs
- * @returns {Promise.<Object>}
- */
-
-Jaccard.prototype.cachedMatrix = function(sourceList, targetList) {
-  var task = this.cachedMatrix = wrap.call(this, this.getMatrix); // lazy build
-  return task.call(this, sourceList, targetList);
 };
 
 /**
@@ -319,7 +306,7 @@ Jaccard.prototype.index = function(sourceLog, targetLog) {
 Jaccard.prototype.getId = through;
 
 /**
- * returns an Jaccard index number rounded to be placed at the result matrix.
+ * returns a Jaccard index number rounded to be placed at the result matrix.
  * This does nothing per default.
  * Override this function to apply any precision.
  *
