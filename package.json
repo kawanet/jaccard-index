@@ -14,6 +14,7 @@
   },
   "devDependencies": {
     "chai": "^3.5.0",
+    "jsdoc": "^3.4.3",
     "jshint": "^2.9.4",
     "mocha": "^3.1.2"
   },
@@ -30,6 +31,7 @@
   },
   "scripts": {
     "fixpack": "fixpack",
+    "jsdoc": "./node_modules/.bin/jsdoc -d gh-pages jaccard-index.js && perl -pe 's#</a> on .* 201.* GMT.*#</a>#; s# *<a href=.*.js.html.>.*line.*line.*</a>##;' -i gh-pages/*.html",
     "jshint": "./node_modules/.bin/jshint *.js* bin test",
     "mocha": "./node_modules/.bin/mocha test",
     "test": "npm run jshint && npm run mocha"

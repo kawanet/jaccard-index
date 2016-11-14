@@ -99,6 +99,10 @@ $ jaccard-index --csv node_modules/jaccard-index/test/example/*.txt
 
 ## SEE ALSO
 
+### JSDoc
+
+- [https://kawanet.github.io/jaccard-index/Jaccard.html](https://kawanet.github.io/jaccard-index/Jaccard.html)
+
 ### NPM
 
 - [https://www.npmjs.com/package/jaccard-index](https://www.npmjs.com/package/jaccard-index)
