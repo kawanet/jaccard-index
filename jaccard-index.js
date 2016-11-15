@@ -264,7 +264,7 @@ Jaccard.prototype.getMatrix = function(sourceItems, targetItems, stream) {
   }
 
   function done() {
-    if (hasStream && !!stream.end) stream.end();
+    if (hasStream && !!stream.end && !stream._isStdio) stream.end();
     return hasStream ? stream : matrix;
   }
 };

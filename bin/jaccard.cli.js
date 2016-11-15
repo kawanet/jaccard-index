@@ -60,10 +60,11 @@ function escapeCSV(str) {
 function CLI() {
   var args = Array.prototype.slice.call(process.argv, 2);
   var csv = (args[0] === "--csv") && args.shift();
+  var stream = (args[0] === "--stream") && args.shift() && process.stdout;
 
   if (!args.length) {
     var cmd = process.argv[1].split("/").pop();
-    console.warn("Usage: " + cmd + " [--csv] item1.txt item2.txt item3.txt...");
+    console.warn("Usage: " + cmd + " [--csv] [--stream] item1.txt item2.txt item3.txt...");
     process.exit(1);
   }
 
@@ -73,11 +74,30 @@ function CLI() {
   jaccard.getId = getId;
   jaccard.round = round;
 
-  return jaccard.getMatrix(args).then(function(matrix) {
-    return csv ? tableToCSV(matrixToTable(matrix)) : JSON.stringify(matrix, null, 2);
-  }).then(function(data) {
-    process.stdout.write(data);
-  }).then(process.exit); // kill self
+  if (stream) {
+    jaccard.filter = function(index, source, target) {
+      return [source, target, index].join(",") + "\n";
+    };
+  }
+
+  var job = jaccard.getMatrix(args, null, stream);
+
+  if (!stream) {
+    if (csv) {
+      job = job.then(function(matrix) {
+        return tableToCSV(matrixToTable(matrix));
+      });
+    } else {
+      job = job.then(function(matrix) {
+        return JSON.stringify(matrix, null, 2);
+      });
+    }
+    job = job.then(function(data) {
+      process.stdout.write(data);
+    });
+  }
+
+  return job.then(process.exit); // kill self
 }
 
 function fatal(reason) {
