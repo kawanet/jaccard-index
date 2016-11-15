@@ -208,6 +208,11 @@ Jaccard.prototype.getMatrix = function(sourceNodes, targetNodes, stream) {
 
       return job.then(then);
 
+      function filter(index) {
+        if (index == null) return;
+        return that.filter(index, sourceNode, targetNode);
+      }
+
       function then(index) {
         if (index == null) return;
         row[targetId] = index;
@@ -215,11 +220,6 @@ Jaccard.prototype.getMatrix = function(sourceNodes, targetNodes, stream) {
         return wait && wait();
       }
     }
-  }
-
-  function filter(index) {
-    if (index == null) return;
-    return that.filter(index);
   }
 
   function done() {

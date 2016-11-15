@@ -20,7 +20,7 @@ describe(TITLE, function() {
     return logs[id];
   }
 
-  it("round", function() {
+  it("Math.floor()", function() {
     var options = {
       getList: getList,
       filter: filter
@@ -43,7 +43,7 @@ describe(TITLE, function() {
     }
   });
 
-  it("null", function() {
+  it("conditional", function() {
     var options = {
       getList: getList,
       filter: filter
@@ -59,6 +59,29 @@ describe(TITLE, function() {
 
     function filter(index) {
       return index > 0.2 ? index : null;
+    }
+
+    function check(matrix) {
+      assert.deepEqual(result, matrix);
+    }
+  });
+
+  it("filter(index, sourceNode, targetNode)", function() {
+    var options = {
+      getList: getList,
+      filter: filter
+    };
+
+    var result = {
+      "item1": {"item2": "item1/item2/25%", "item3": "item1/item3/66%"},
+      "item2": {"item1": "item2/item1/25%", "item3": "item2/item3/20%"},
+      "item3": {"item1": "item3/item1/66%", "item2": "item3/item2/20%"}
+    };
+
+    return Jaccard(options).getMatrix(source).then(check);
+
+    function filter(index, sourceNode, targetNode) {
+      return [sourceNode, targetNode, Math.floor(index * 100) + "%"].join("/");
     }
 
     function check(matrix) {
