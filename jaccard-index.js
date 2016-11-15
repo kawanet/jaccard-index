@@ -167,15 +167,15 @@ Jaccard.prototype.getList = function(id) {
 };
 
 /**
- * returns a matrix of Jaccard index for given IDs.
+ * returns a matrix of Jaccard index for nodes given.
  *
- * @param sourceList {Array|Promise.<Array>} array of source IDs
- * @param [targetList] {Array|Promise.<Array>} array of target IDs
+ * @param sourceNodes {Array|Promise.<Array>} array of source nodes
+ * @param [targetNodes] {Array|Promise.<Array>} array of target nodes
  * @param [stream] {WritableStream} stream to write links
  * @returns {Promise.<Object>}
  */
 
-Jaccard.prototype.getMatrix = function(sourceList, targetList, stream) {
+Jaccard.prototype.getMatrix = function(sourceNodes, targetNodes, stream) {
   var that = this;
   var matrix = {};
   var wait = that.wait && promisen.wait(that.wait);
@@ -183,25 +183,25 @@ Jaccard.prototype.getMatrix = function(sourceList, targetList, stream) {
   var hasFilter = (that.filter !== through);
   var hasStream = stream && !!stream.write;
   var noDirection = !that.direction;
-  if (!targetList) targetList = sourceList;
+  if (!targetNodes) targetNodes = sourceNodes;
 
-  return promisen.eachSeries(sourceList, sourceIt)().then(done);
+  return promisen.eachSeries(sourceNodes, sourceIt)().then(done);
 
-  function sourceIt(sourceId) {
-    var sourceKey = hasGetId ? that.getId(sourceId) : sourceId;
-    var row = matrix[sourceKey] || (matrix[sourceKey] = {});
-    return promisen.eachSeries(targetList, targetIt)();
+  function sourceIt(sourceNode) {
+    var sourceId = hasGetId ? that.getId(sourceNode) : sourceNode;
+    var row = matrix[sourceId] || (matrix[sourceId] = {});
+    return promisen.eachSeries(targetNodes, targetIt)();
 
-    function targetIt(targetId) {
-      var targetKey = hasGetId ? that.getId(targetId) : targetId;
-      if (sourceKey === targetKey) return;
+    function targetIt(targetNode) {
+      var targetId = hasGetId ? that.getId(targetNode) : targetNode;
+      if (sourceId === targetId) return;
 
-      var swap = noDirection && (targetKey < sourceKey);
+      var swap = noDirection && (targetId < sourceId);
       var job;
       if (swap) {
-        job = that.cachedIndex(targetId, sourceId); // swapped
+        job = that.cachedIndex(targetNode, sourceNode); // swapped
       } else {
-        job = that.cachedIndex(sourceId, targetId);
+        job = that.cachedIndex(sourceNode, targetNode);
       }
 
       if (hasFilter) job = job.then(filter);
@@ -210,7 +210,7 @@ Jaccard.prototype.getMatrix = function(sourceList, targetList, stream) {
 
       function then(index) {
         if (index == null) return;
-        row[targetKey] = index;
+        row[targetId] = index;
         if (hasStream && !swap) stream.write(index);
         return wait && wait();
       }
@@ -229,33 +229,33 @@ Jaccard.prototype.getMatrix = function(sourceList, targetList, stream) {
 };
 
 /**
- * returns a Promise for Jaccard index between the pair of IDs with the built-in cache mechanism.
+ * returns a Promise for Jaccard index between the pair of nodes with the built-in cache mechanism.
  * This calls getIndex() method when the cache not available.
  *
- * @param sourceId {string|Object}
- * @param targetId {string|Object}
+ * @param sourceNode {string|Object}
+ * @param targetNode {string|Object}
  * @returns {Promise.<number|undefined>}
  */
 
-Jaccard.prototype.cachedIndex = function(sourceId, targetId) {
+Jaccard.prototype.cachedIndex = function(sourceNode, targetNode) {
   var task = this.cachedIndex = wrap.call(this, this.getIndex); // lazy build
-  return task.call(this, sourceId, targetId);
+  return task.call(this, sourceNode, targetNode);
 };
 
 /**
- * returns a Promise for Jaccard index between the pair of IDs.
+ * returns a Promise for Jaccard index between the pair of nodes.
  *
- * @param sourceId {string|Object}
- * @param targetId {string|Object}
+ * @param sourceNode {string|Object}
+ * @param targetNode {string|Object}
  * @returns {Promise.<number|undefined>}
  */
 
-Jaccard.prototype.getIndex = function(sourceId, targetId) {
+Jaccard.prototype.getIndex = function(sourceNode, targetNode) {
   var that = this;
 
-  return that.cachedList(sourceId).then(function(sourceLog) {
+  return that.cachedList(sourceNode).then(function(sourceLog) {
     if (!sourceLog) return;
-    return that.cachedList(targetId).then(function(targetLog) {
+    return that.cachedList(targetNode).then(function(targetLog) {
       if (!targetLog) return;
       return that.index(sourceLog, targetLog);
     });
