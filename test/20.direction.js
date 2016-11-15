@@ -29,22 +29,28 @@ describe(TITLE, function() {
   it("direction: true", function() {
     var jaccard = new Jaccard({direction: true, getList: getList});
     jaccard = wrapCalcCounter(jaccard);
-    return jaccard.getMatrix(source).then(check);
+    var stream = createCounterStream();
+    return jaccard.getMatrix(source, null, stream).then(check);
 
     function check(matrix) {
       assert.deepEqual(matrix, result);
       assert.equal(jaccard._counter, 6);
+      assert.ok(stream._end);
+      assert.equal(stream._counter, 6);
     }
   });
 
   it("direction: false", function() {
     var jaccard = new Jaccard({direction: false, getList: getList});
     jaccard = wrapCalcCounter(jaccard);
-    return jaccard.getMatrix(source).then(check);
+    var stream = createCounterStream();
+    return jaccard.getMatrix(source, null, stream).then(check);
 
     function check(matrix) {
       assert.deepEqual(matrix, result);
       assert.equal(jaccard._counter, 3); // other pairs refer cached results
+      assert.ok(stream._end);
+      assert.equal(stream._counter, 3);
     }
   });
 
@@ -60,3 +66,16 @@ describe(TITLE, function() {
     }
   }
 });
+
+function createCounterStream() {
+  var stream = {write: write, end: end, _counter: 0};
+  return stream;
+
+  function write() {
+    stream._counter++;
+  }
+
+  function end() {
+    stream._end = true;
+  }
+}

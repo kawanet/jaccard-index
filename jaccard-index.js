@@ -171,15 +171,18 @@ Jaccard.prototype.getList = function(id) {
  *
  * @param sourceList {Array|Promise.<Array>} array of source IDs
  * @param [targetList] {Array|Promise.<Array>} array of target IDs
+ * @param [stream] {WritableStream} stream to write links
  * @returns {Promise.<Object>}
  */
 
-Jaccard.prototype.getMatrix = function(sourceList, targetList) {
+Jaccard.prototype.getMatrix = function(sourceList, targetList, stream) {
   var that = this;
   var matrix = {};
   var wait = that.wait && promisen.wait(that.wait);
   var hasGetId = (that.getId !== through);
   var hasFilter = (that.filter !== through);
+  var hasStream = stream && !!stream.write;
+  var noDirection = !that.direction;
   if (!targetList) targetList = sourceList;
 
   return promisen.eachSeries(sourceList, sourceIt)().then(done);
@@ -193,8 +196,9 @@ Jaccard.prototype.getMatrix = function(sourceList, targetList) {
       var targetKey = hasGetId ? that.getId(targetId) : targetId;
       if (sourceKey === targetKey) return;
 
+      var swap = noDirection && (targetKey < sourceKey);
       var job;
-      if (!that.direction && targetId < sourceId) {
+      if (swap) {
         job = that.cachedIndex(targetId, sourceId); // swapped
       } else {
         job = that.cachedIndex(sourceId, targetId);
@@ -207,6 +211,7 @@ Jaccard.prototype.getMatrix = function(sourceList, targetList) {
       function then(index) {
         if (index == null) return;
         row[targetKey] = index;
+        if (hasStream && !swap) stream.write(index);
         return wait && wait();
       }
     }
@@ -218,6 +223,7 @@ Jaccard.prototype.getMatrix = function(sourceList, targetList) {
   }
 
   function done() {
+    if (hasStream && !!stream.end) stream.end();
     return matrix;
   }
 };
