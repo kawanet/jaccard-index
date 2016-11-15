@@ -20,7 +20,7 @@ describe(TITLE, function() {
     return logs[id];
   }
 
-  it("0.001", function() {
+  it("round", function() {
     var options = {
       getList: getList,
       filter: filter
@@ -36,6 +36,29 @@ describe(TITLE, function() {
 
     function filter(index) {
       return Math.round(index * 1000) / 1000;
+    }
+
+    function check(matrix) {
+      assert.deepEqual(result, matrix);
+    }
+  });
+
+  it("null", function() {
+    var options = {
+      getList: getList,
+      filter: filter
+    };
+
+    var result = {
+      "item1": {"item2": 0.25, "item3": 2 / 3},
+      "item2": {"item1": 0.25},
+      "item3": {"item1": 2 / 3}
+    };
+
+    return Jaccard(options).getMatrix(source, source).then(check);
+
+    function filter(index) {
+      return index > 0.2 ? index : null;
     }
 
     function check(matrix) {
