@@ -49,17 +49,17 @@ module.exports = Jaccard;
  *   "item3": ["user1", "user2", "user5"]
  * };
  *
- * var source = Object.keys(logs); // item1, item2, item3
+ * var items = Object.keys(logs); // item1, item2, item3
  *
  * var options = {
- *   getList: getList
+ *   getLog: getLog
  * };
  *
- * Jaccard(options).getMatrix(source).then(showResult).catch(console.warn);
+ * Jaccard(options).getMatrix(items).then(showResult).catch(console.warn);
  *
- * function getList(id) {
- *   return Promise.resolve(logs[id]); // async
- *   // return logs[id]; // sync
+ * function getLog(itemId) {
+ *   return Promise.resolve(logs[itemId]); // async
+ *   // return logs[itemId]; // sync
  * }
  *
  * function showResult(matrix) {
@@ -129,18 +129,6 @@ Jaccard.prototype.throttle = 1;
 Jaccard.prototype.timeout = 60 * 1000;
 
 /**
- * returns a hash string made from ID object.
- * The built-in cache mechanism works with the hash string.
- * Override this only when you need any other hash function than JSON.stringify().
- *
- * @method
- * @param id {string|Object}
- * @returns {string}
- */
-
-Jaccard.prototype.getIdHash = JSON.stringify.bind(JSON);
-
-/**
  * False when source and target are swappable.
  * Set true when they have a direction.
  *
@@ -151,34 +139,39 @@ Jaccard.prototype.getIdHash = JSON.stringify.bind(JSON);
 Jaccard.prototype.direction = false;
 
 /**
- * retrieves an array for ID with the built-in cache mechanism.
- * This calls getList() method when the cache not available.
+ * retrieves a log array with the built-in cache mechanism.
+ * This calls getLog() method when the cache not available.
  *
- * @param id {string|Object} ID string or object
+ * @param itemId {string}
  * @returns {Promise.&lt;Array>}
  */
 
-Jaccard.prototype.cachedList = function(id) {
-  var task = this.cachedList = wrap.call(this, this.getList); // lazy build
-  return task.call(this, id);
+Jaccard.prototype.cachedLog = function(itemId) {
+  var task = wrap.call(this, this.getLog);
+  if (this.expire) {
+    task = promisen.memoize(task, this.expire);
+  }
+  this.cachedLog = task; // lazy build
+  return task.call(this, itemId);
 };
 
 /**
- * retrieves an array for ID.
+ * retrieves a log array.
  * Overriding this method is required before calling getMatrix() or getIndex() methods.
  *
- * @param id {string|Object} ID string or object
+ * @method
+ * @param itemId {string}
  * @returns {Array|Promise.&lt;Array>}
  * @example
  * var fs = require("fs");
  * var Jaccard = require("jaccard-index");
  * var jaccard = Jaccard();
  *
- * jaccard.getList = getList;
+ * jaccard.getLog = getLog;
  *
- * function getList(id) {
+ * function getLog(itemId) {
  *   return new Promise(function(resolve, reject) {
- *     var file = "test/example/" + id + ".txt";
+ *     var file = "test/example/" + itemId + ".txt";
  *     fs.readFile(file, "utf-8", function(err, text) {
  *       if (err) return reject(err);
  *       var data = text.split("\n").filter(function(v) {
@@ -190,84 +183,159 @@ Jaccard.prototype.cachedList = function(id) {
  * }
  */
 
-Jaccard.prototype.getList = function(id) {
-  throw new Error("getList function not implemented");
+Jaccard.prototype.getLog = getLog;
+
+/**
+ * @private
+ */
+
+function getLog(itemId) {
+  throw new Error("getLog method not implemented");
+}
+
+/**
+ * @private
+ */
+
+function _getLog(itemId) {
+  var logs = this.logs || (this.logs = {});
+  var row = logs[itemId];
+  if (row) return Object.keys(row);
+}
+
+/**
+ * imports a transaction.
+ * This generates getLog() method.
+ *
+ * @param itemId {string}
+ * @param userId {string}
+ */
+
+Jaccard.prototype.addLog = function(itemId, userId) {
+  var logs = this.logs;
+  if (!logs) {
+    if (this.getLog !== getLog) {
+      throw new Error("getLog method already implemented");
+    }
+    logs = this.logs = {};
+    this.getLog = _getLog;
+    this.getItems = _getItems;
+  }
+  var row = logs[itemId] || (logs[itemId] = {});
+  row[userId]++;
 };
 
 /**
- * returns a matrix of Jaccard index for given IDs.
+ * returns array of items.
+ * Override this only when needed.
  *
- * @param sourceList {Array} array of source IDs
- * @param [targetList] {Array} array of target IDs
+ * @returns {Array}
+ */
+
+Jaccard.prototype.getItems = function() {
+  throw new Error("getItems method not implemented");
+};
+
+/**
+ * @private
+ */
+
+function _getItems() {
+  if (this.logs) return Object.keys(this.logs);
+}
+
+/**
+ * returns a matrix of Jaccard index for items given.
+ *
+ * @param [sourceItems] {Array|Promise.&lt;Array>} array of source items
+ * @param [targetItems] {Array|Promise.&lt;Array>} array of target items
+ * @param [stream] {WritableStream} stream to write links
  * @returns {Promise.&lt;Object>}
  */
 
-Jaccard.prototype.getMatrix = function(sourceList, targetList) {
+Jaccard.prototype.getMatrix = function(sourceItems, targetItems, stream) {
   var that = this;
   var matrix = {};
   var wait = that.wait &amp;&amp; promisen.wait(that.wait);
-  var hasGetId = (that.getId !== through);
-  var hasRound = (that.round !== through);
-  if (!targetList) targetList = sourceList;
+  var hasFilter = (that.filter !== through);
+  var hasStream = stream &amp;&amp; !!stream.write;
+  var noDirection = !that.direction;
+  if (!sourceItems) sourceItems = this.getItems;
+  if (!targetItems) targetItems = sourceItems;
 
-  return promisen.eachSeries(sourceList, sourceIt)().then(done);
+  return promisen.eachSeries(sourceItems, sourceIt).call(that).then(done);
 
-  function sourceIt(sourceId) {
-    var sourceKey = that.getId ? that.getId(sourceId) : sourceId;
-    var row = matrix[sourceKey] || (matrix[sourceKey] = {});
-    return promisen.eachSeries(targetList, targetIt)();
+  function sourceIt(sourceItem) {
+    var row = matrix[sourceItem] || (matrix[sourceItem] = {});
+    return promisen.eachSeries(targetItems, targetIt).call(that);
 
-    function targetIt(targetId) {
-      var targetKey = hasGetId ? that.getId(targetId) : targetId;
-      if (sourceKey === targetKey) return;
+    function targetIt(targetItem) {
+      if (sourceItem === targetItem) return;
 
-      if (!that.direction &amp;&amp; targetId &lt; sourceId) {
-        return that.cachedIndex(targetId, sourceId).then(then); // swapped
+      var swap = noDirection &amp;&amp; (targetItem &lt; sourceItem);
+      var job;
+      if (swap) {
+        job = that.cachedIndex(targetItem, sourceItem); // swapped
       } else {
-        return that.cachedIndex(sourceId, targetId).then(then);
+        job = that.cachedIndex(sourceItem, targetItem);
+      }
+
+      if (hasFilter) job = job.then(filter);
+
+      return job.then(then);
+
+      function filter(index) {
+        if (index == null) return;
+        return that.filter(index, sourceItem, targetItem);
       }
 
       function then(index) {
         if (index == null) return;
-        row[targetKey] = hasRound ? that.round(index) : index;
+        if (!hasStream) row[targetItem] = index;
+        if (hasStream &amp;&amp; !swap) stream.write(index);
         return wait &amp;&amp; wait();
       }
     }
   }
 
   function done() {
-    return matrix;
+    if (hasStream &amp;&amp; !!stream.end &amp;&amp; !stream._isStdio) stream.end();
+    return hasStream ? stream : matrix;
   }
 };
 
 /**
- * returns a Promise for Jaccard index between the pair of IDs with the built-in cache mechanism.
+ * returns a Promise for Jaccard index between the pair of items with the built-in cache mechanism.
  * This calls getIndex() method when the cache not available.
  *
- * @param sourceId {string|Object}
- * @param targetId {string|Object}
+ * @param sourceItem {string}
+ * @param targetItem {string}
  * @returns {Promise.&lt;number|undefined>}
  */
 
-Jaccard.prototype.cachedIndex = function(sourceId, targetId) {
-  var task = this.cachedIndex = wrap.call(this, this.getIndex); // lazy build
-  return task.call(this, sourceId, targetId);
+Jaccard.prototype.cachedIndex = function(sourceItem, targetItem) {
+  var task = wrap.call(this, this.getIndex);
+  if (this.expire) {
+    task = memoize(task, this.expire);
+  }
+  this.cachedIndex = task; // lazy build
+  return task.call(this, sourceItem, targetItem);
 };
 
 /**
- * returns a Promise for Jaccard index between the pair of IDs.
+ * returns a Promise for Jaccard index between the pair of items.
  *
- * @param sourceId {string|Object}
- * @param targetId {string|Object}
+ * @param sourceItem {string}
+ * @param targetItem {string}
  * @returns {Promise.&lt;number|undefined>}
  */
 
-Jaccard.prototype.getIndex = function(sourceId, targetId) {
+Jaccard.prototype.getIndex = function(sourceItem, targetItem) {
   var that = this;
 
-  return that.cachedList(sourceId).then(function(sourceLog) {
+  return that.cachedLog(sourceItem).then(function(sourceLog) {
     if (!sourceLog) return;
-    return that.cachedList(targetId).then(function(targetLog) {
+    return that.cachedLog(targetItem).then(function(targetLog) {
       if (!targetLog) return;
       return that.index(sourceLog, targetLog);
     });
@@ -306,72 +374,69 @@ Jaccard.prototype.index = function(sourceLog, targetLog) {
   var longerLog = (sourceLen &lt; targetLen) ? targetLog : sourceLog;
 
   var map = {};
-  Array.prototype.forEach.call(shorterLog, function(id) {
-    map[id] = 1;
+  Array.prototype.forEach.call(shorterLog, function(userId) {
+    map[userId] = 1;
   });
 
   var match = 0;
-  Array.prototype.forEach.call(longerLog, function(id) {
-    if (map[id]) match++;
+  Array.prototype.forEach.call(longerLog, function(userId) {
+    if (map[userId]) match++;
   });
 
   return match / (sourceLen + targetLen - match);
 };
 
 /**
- * stringify ID object to be placed at the result matrix.
- * Just pass through per default.
- *
- * @method
- * @param id {string|Object} ID string or object
- * @returns {string}
- * @example
- * jaccard.getId = function(id) {
- *   return id.toUpperCase();
- * };
- */
-
-Jaccard.prototype.getId = through;
-
-/**
- * returns a Jaccard index number rounded to be placed at the result matrix.
+ * returns a Jaccard index value to be placed at the result matrix.
  * This does nothing per default.
- * Override this function to apply any precision.
+ * Override this function to apply a precision or another format.
+ * Return null to ignore the index.
  *
  * @method
  * @param index {number} Jaccard index
- * @returns {number}
+ * @returns {number|Object}
  * @example
- * jaccard.round = function(index) {
- *   return Math.round(index * 1000) / 1000;
+ * jaccard.filter = function(index) {
+ *   return Math.filter(index * 1000) / 1000;
+ * };
+ * @example
+ * jaccard.filter = function(index) {
+ *   return (index > 0.001) ? index : null;
  * };
  */
 
-Jaccard.prototype.round = through;
+Jaccard.prototype.filter = through;
 
 /**
  * @private
  */
 
-function wrap(func) {
-  var task = run;
-  if (this.throttle || this.timeout) {
+function wrap(task) {
+  if (this.throttle) {
     task = promisen.throttle(task, this.throttle, this.timeout);
+  } else if (this.timeout) {
+    task = promisen.timeout(task, this.timeout);
   } else {
     task = promisen(task);
   }
-  if (this.expire) {
-    task = promisen.memoize(task, this.expire, this.getIdHash);
-  }
-  return wrapped;
+  return task;
+}
 
-  function wrapped() {
-    var arg = Array.prototype.slice.call(arguments);
-    return task.call(this, arg); // single argument requested
+/**
+ * @private
+ */
+
+function memoize(task, expire) {
+  var memo = promisen.memoize(unwrap, expire);
+  return enwrap;
+
+  function enwrap() {
+    var array = Array.prototype.slice.call(arguments);
+    return memo.call(this, array); // single argument required
   }
 
-  function run(arg) {
-    return func.apply(this, arg); // multiple arguments allowed
+  function unwrap(array) {
+    return task.apply(this, array); // multiple arguments allowed
   }
 }
 

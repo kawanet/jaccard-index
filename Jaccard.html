@@ -207,17 +207,17 @@ var logs = {
   "item3": ["user1", "user2", "user5"]
 };
 
-var source = Object.keys(logs); // item1, item2, item3
+var items = Object.keys(logs); // item1, item2, item3
 
 var options = {
-  getList: getList
+  getLog: getLog
 };
 
-Jaccard(options).getMatrix(source).then(showResult).catch(console.warn);
+Jaccard(options).getMatrix(items).then(showResult).catch(console.warn);
 
-function getList(id) {
-  return Promise.resolve(logs[id]); // async
-  // return logs[id]; // sync
+function getLog(itemId) {
+  return Promise.resolve(logs[itemId]); // async
+  // return logs[itemId]; // sync
 }
 
 function showResult(matrix) {
@@ -658,14 +658,169 @@ Set null to disable any wait.
 
     
 
-    <h4 class="name" id="cachedIndex"><span class="type-signature"></span>cachedIndex<span class="signature">(sourceId, targetId)</span><span class="type-signature"> &rarr; {Promise.&lt;(number|undefined)>}</span></h4>
+    <h4 class="name" id="addLog"><span class="type-signature"></span>addLog<span class="signature">(itemId, userId)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    returns a Promise for Jaccard index between the pair of IDs with the built-in cache mechanism.
+    imports a transaction.
+This generates getLog() method.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>itemId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>userId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="cachedIndex"><span class="type-signature"></span>cachedIndex<span class="signature">(sourceItem, targetItem)</span><span class="type-signature"> &rarr; {Promise.&lt;(number|undefined)>}</span></h4>
+
+    
+
+
+
+<div class="description">
+    returns a Promise for Jaccard index between the pair of items with the built-in cache mechanism.
 This calls getIndex() method when the cache not available.
 </div>
 
@@ -702,16 +857,13 @@ This calls getIndex() method when the cache not available.
 
         <tr>
             
-                <td class="name"><code>sourceId</code></td>
+                <td class="name"><code>sourceItem</code></td>
             
 
             <td class="type">
             
                 
 <span class="param-type">string</span>
-|
-
-<span class="param-type">Object</span>
 
 
             
@@ -728,16 +880,13 @@ This calls getIndex() method when the cache not available.
 
         <tr>
             
-                <td class="name"><code>targetId</code></td>
+                <td class="name"><code>targetItem</code></td>
             
 
             <td class="type">
             
                 
 <span class="param-type">string</span>
-|
-
-<span class="param-type">Object</span>
 
 
             
@@ -837,15 +986,15 @@ This calls getIndex() method when the cache not available.
 
     
 
-    <h4 class="name" id="cachedList"><span class="type-signature"></span>cachedList<span class="signature">(id)</span><span class="type-signature"> &rarr; {Promise.&lt;Array>}</span></h4>
+    <h4 class="name" id="cachedLog"><span class="type-signature"></span>cachedLog<span class="signature">(itemId)</span><span class="type-signature"> &rarr; {Promise.&lt;Array>}</span></h4>
 
     
 
 
 
 <div class="description">
-    retrieves an array for ID with the built-in cache mechanism.
-This calls getList() method when the cache not available.
+    retrieves a log array with the built-in cache mechanism.
+This calls getLog() method when the cache not available.
 </div>
 
 
@@ -881,16 +1030,13 @@ This calls getList() method when the cache not available.
 
         <tr>
             
-                <td class="name"><code>id</code></td>
+                <td class="name"><code>itemId</code></td>
             
 
             <td class="type">
             
                 
 <span class="param-type">string</span>
-|
-
-<span class="param-type">Object</span>
 
 
             
@@ -900,7 +1046,7 @@ This calls getList() method when the cache not available.
 
             
 
-            <td class="description last">ID string or object</td>
+            <td class="description last"></td>
         </tr>
 
     
@@ -990,15 +1136,17 @@ This calls getList() method when the cache not available.
 
     
 
-    <h4 class="name" id="getId"><span class="type-signature"></span>getId<span class="signature">(id)</span><span class="type-signature"> &rarr; {string}</span></h4>
+    <h4 class="name" id="filter"><span class="type-signature"></span>filter<span class="signature">(index)</span><span class="type-signature"> &rarr; {number|Object}</span></h4>
 
     
 
 
 
 <div class="description">
-    stringify ID object to be placed at the result matrix.
-Just pass through per default.
+    returns a Jaccard index value to be placed at the result matrix.
+This does nothing per default.
+Override this function to apply a precision or another format.
+Return null to ignore the index.
 </div>
 
 
@@ -1034,16 +1182,13 @@ Just pass through per default.
 
         <tr>
             
-                <td class="name"><code>id</code></td>
+                <td class="name"><code>index</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
-|
-
-<span class="param-type">Object</span>
+<span class="param-type">number</span>
 
 
             
@@ -1053,7 +1198,7 @@ Just pass through per default.
 
             
 
-            <td class="description last">ID string or object</td>
+            <td class="description last">Jaccard index</td>
         </tr>
 
     
@@ -1128,7 +1273,10 @@ Just pass through per default.
     </dt>
     <dd>
         
-<span class="param-type">string</span>
+<span class="param-type">number</span>
+|
+
+<span class="param-type">Object</span>
 
 
     </dd>
@@ -1137,10 +1285,14 @@ Just pass through per default.
     
 
 
-    <h5>Example</h5>
+    <h5>Examples</h5>
     
-    <pre class="prettyprint"><code>jaccard.getId = function(id) {
-  return id.toUpperCase();
+    <pre class="prettyprint"><code>jaccard.filter = function(index) {
+  return Math.filter(index * 1000) / 1000;
+};</code></pre>
+
+    <pre class="prettyprint"><code>jaccard.filter = function(index) {
+  return (index > 0.001) ? index : null;
 };</code></pre>
 
 
@@ -1150,16 +1302,14 @@ Just pass through per default.
 
     
 
-    <h4 class="name" id="getIdHash"><span class="type-signature"></span>getIdHash<span class="signature">(id)</span><span class="type-signature"> &rarr; {string}</span></h4>
+    <h4 class="name" id="getIndex"><span class="type-signature"></span>getIndex<span class="signature">(sourceItem, targetItem)</span><span class="type-signature"> &rarr; {Promise.&lt;(number|undefined)>}</span></h4>
 
     
 
 
 
 <div class="description">
-    returns a hash string made from ID object.
-The built-in cache mechanism works with the hash string.
-Override this only when you need any other hash function than JSON.stringify().
+    returns a Promise for Jaccard index between the pair of items.
 </div>
 
 
@@ -1195,168 +1345,13 @@ Override this only when you need any other hash function than JSON.stringify().
 
         <tr>
             
-                <td class="name"><code>id</code></td>
+                <td class="name"><code>sourceItem</code></td>
             
 
             <td class="type">
             
                 
 <span class="param-type">string</span>
-|
-
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">string</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="getIndex"><span class="type-signature"></span>getIndex<span class="signature">(sourceId, targetId)</span><span class="type-signature"> &rarr; {Promise.&lt;(number|undefined)>}</span></h4>
-
-    
-
-
-
-<div class="description">
-    returns a Promise for Jaccard index between the pair of IDs.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>sourceId</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-|
-
-<span class="param-type">Object</span>
 
 
             
@@ -1373,16 +1368,13 @@ Override this only when you need any other hash function than JSON.stringify().
 
         <tr>
             
-                <td class="name"><code>targetId</code></td>
+                <td class="name"><code>targetItem</code></td>
             
 
             <td class="type">
             
                 
 <span class="param-type">string</span>
-|
-
-<span class="param-type">Object</span>
 
 
             
@@ -1482,14 +1474,115 @@ Override this only when you need any other hash function than JSON.stringify().
 
     
 
-    <h4 class="name" id="getList"><span class="type-signature"></span>getList<span class="signature">(id)</span><span class="type-signature"> &rarr; {Array|Promise.&lt;Array>}</span></h4>
+    <h4 class="name" id="getItems"><span class="type-signature"></span>getItems<span class="signature">()</span><span class="type-signature"> &rarr; {Array}</span></h4>
 
     
 
 
 
 <div class="description">
-    retrieves an array for ID.
+    returns array of items.
+Override this only when needed.
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getLog"><span class="type-signature"></span>getLog<span class="signature">(itemId)</span><span class="type-signature"> &rarr; {Array|Promise.&lt;Array>}</span></h4>
+
+    
+
+
+
+<div class="description">
+    retrieves a log array.
 Overriding this method is required before calling getMatrix() or getIndex() methods.
 </div>
 
@@ -1526,16 +1619,13 @@ Overriding this method is required before calling getMatrix() or getIndex() meth
 
         <tr>
             
-                <td class="name"><code>id</code></td>
+                <td class="name"><code>itemId</code></td>
             
 
             <td class="type">
             
                 
 <span class="param-type">string</span>
-|
-
-<span class="param-type">Object</span>
 
 
             
@@ -1545,7 +1635,7 @@ Overriding this method is required before calling getMatrix() or getIndex() meth
 
             
 
-            <td class="description last">ID string or object</td>
+            <td class="description last"></td>
         </tr>
 
     
@@ -1638,11 +1728,11 @@ Overriding this method is required before calling getMatrix() or getIndex() meth
 var Jaccard = require("jaccard-index");
 var jaccard = Jaccard();
 
-jaccard.getList = getList;
+jaccard.getLog = getLog;
 
-function getList(id) {
+function getLog(itemId) {
   return new Promise(function(resolve, reject) {
-    var file = "test/example/" + id + ".txt";
+    var file = "test/example/" + itemId + ".txt";
     fs.readFile(file, "utf-8", function(err, text) {
       if (err) return reject(err);
       var data = text.split("\n").filter(function(v) {
@@ -1660,14 +1750,14 @@ function getList(id) {
 
     
 
-    <h4 class="name" id="getMatrix"><span class="type-signature"></span>getMatrix<span class="signature">(sourceList, targetList<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;Object>}</span></h4>
+    <h4 class="name" id="getMatrix"><span class="type-signature"></span>getMatrix<span class="signature">(sourceItems<span class="signature-attributes">opt</span>, targetItems<span class="signature-attributes">opt</span>, stream<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;Object>}</span></h4>
 
     
 
 
 
 <div class="description">
-    returns a matrix of Jaccard index for given IDs.
+    returns a matrix of Jaccard index for items given.
 </div>
 
 
@@ -1705,44 +1795,16 @@ function getList(id) {
 
         <tr>
             
-                <td class="name"><code>sourceList</code></td>
+                <td class="name"><code>sourceItems</code></td>
             
 
             <td class="type">
             
                 
 <span class="param-type">Array</span>
+|
 
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">array of source IDs</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>targetList</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Array</span>
+<span class="param-type">Promise.&lt;Array></span>
 
 
             
@@ -1762,7 +1824,76 @@ function getList(id) {
 
             
 
-            <td class="description last">array of target IDs</td>
+            <td class="description last">array of source items</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>targetItems</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+|
+
+<span class="param-type">Promise.&lt;Array></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">array of target items</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>stream</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">WritableStream</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">stream to write links</td>
         </tr>
 
     
@@ -2035,164 +2166,6 @@ var item2 = ["user2", "user3", "user4"];
 var index = jaccard.index(item1, item2);
 
 console.log(index); // => 0.25</code></pre>
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="round"><span class="type-signature"></span>round<span class="signature">(index)</span><span class="type-signature"> &rarr; {number}</span></h4>
-
-    
-
-
-
-<div class="description">
-    returns a Jaccard index number rounded to be placed at the result matrix.
-This does nothing per default.
-Override this function to apply any precision.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>index</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Jaccard index</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">number</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-    <h5>Example</h5>
-    
-    <pre class="prettyprint"><code>jaccard.round = function(index) {
-  return Math.round(index * 1000) / 1000;
-};</code></pre>
 
 
 
