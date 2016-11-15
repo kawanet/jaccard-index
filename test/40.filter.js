@@ -66,7 +66,7 @@ describe(TITLE, function() {
     }
   });
 
-  it("filter(index, sourceNode, targetNode)", function() {
+  it("filter(index, sourceItem, targetItem)", function() {
     var options = {
       getLog: getLog,
       filter: filter
@@ -80,8 +80,8 @@ describe(TITLE, function() {
 
     return Jaccard(options).getMatrix(source).then(check);
 
-    function filter(index, sourceNode, targetNode) {
-      return [sourceNode, targetNode, Math.floor(index * 100) + "%"].join("/");
+    function filter(index, sourceItem, targetItem) {
+      return [sourceItem, targetItem, Math.floor(index * 100) + "%"].join("/");
     }
 
     function check(matrix) {

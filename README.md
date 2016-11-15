@@ -23,17 +23,17 @@ var logs = {
   "item3": ["user1", "user2", "user5"]
 };
 
-var source = Object.keys(logs); // item1, item2, item3
+var items = Object.keys(logs); // item1, item2, item3
 
 var options = {
   getLog: getLog
 };
 
-Jaccard(options).getMatrix(source).then(showResult).catch(console.warn);
+Jaccard(options).getMatrix(items).then(showResult).catch(console.warn);
 
-function getLog(node) {
-  return Promise.resolve(logs[node]); // async loading
-  // return logs[node]; // sync loading
+function getLog(item) {
+  return Promise.resolve(logs[item]); // async loading
+  // return logs[item]; // sync loading
 }
 
 function showResult(matrix) {
@@ -59,9 +59,9 @@ function showResult(matrix) {
 ```js
 var fs = require("fs");
 
-function getLog(node) {
+function getLog(item) {
   return new Promise(function(resolve, reject) {
-    var file = "test/example/" + node + ".txt";
+    var file = "test/example/" + item + ".txt";
     fs.readFile(file, "utf-8", function(err, text) {
       if (err) return reject(err);
       var list = text.split("\n").filter(function(v) {

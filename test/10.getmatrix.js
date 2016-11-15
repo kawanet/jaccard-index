@@ -41,7 +41,7 @@ describe(TITLE, function() {
     assert.equal(jaccard.index(logs.item3, logs.item1), result.item3.item1);
   });
 
-  it("getIndex(sourceNode, targetNode)", function() {
+  it("getIndex(sourceItem, targetItem)", function() {
     return Jaccard(options).getIndex("item1", "item2").then(check);
 
     function check(index) {
@@ -49,7 +49,7 @@ describe(TITLE, function() {
     }
   });
 
-  it("cachedIndex(sourceNode, targetNode)", function() {
+  it("cachedIndex(sourceItem, targetItem)", function() {
     return Jaccard(options).cachedIndex("item2", "item3").then(check);
 
     function check(index) {
@@ -57,7 +57,7 @@ describe(TITLE, function() {
     }
   });
 
-  it("getMatrix(sourceNodes, targetNodes)", function() {
+  it("getMatrix(sourceItems, targetItems)", function() {
     return Jaccard(options).getMatrix(["item1"], source).then(check);
 
     function check(matrix) {
@@ -65,7 +65,7 @@ describe(TITLE, function() {
     }
   });
 
-  it("getMatrix(sourceNodes)", function() {
+  it("getMatrix(sourceItems)", function() {
     return Jaccard(options).getMatrix(source).then(check);
 
     function check(matrix) {
