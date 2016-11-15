@@ -23,6 +23,12 @@
     "node": true,
     "undef": true
   },
+  "keywords": [
+    "collaborative",
+    "jaccard",
+    "promise",
+    "similarity"
+  ],
   "license": "MIT",
   "main": "jaccard-index.js",
   "repository": {
