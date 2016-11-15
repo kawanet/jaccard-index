@@ -101,18 +101,6 @@ Jaccard.prototype.throttle = 1;
 Jaccard.prototype.timeout = 60 * 1000;
 
 /**
- * returns a hash string made from node.
- * The built-in cache mechanism works with the hash string.
- * Override this only when you need any other hash function than JSON.stringify().
- *
- * @method
- * @param node {string|Object}
- * @returns {string}
- */
-
-Jaccard.prototype.getIdHash = JSON.stringify.bind(JSON);
-
-/**
  * False when source and target are swappable.
  * Set true when they have a direction.
  *
@@ -131,7 +119,11 @@ Jaccard.prototype.direction = false;
  */
 
 Jaccard.prototype.cachedList = function(node) {
-  var task = this.cachedList = wrap.call(this, this.getList); // lazy build
+  var task = wrap.call(this, this.getList);
+  if (this.expire) {
+    task = promisen.memoize(task, this.expire, this.getId);
+  }
+  this.cachedList = task; // lazy build
   return task.call(this, node);
 };
 
@@ -238,7 +230,11 @@ Jaccard.prototype.getMatrix = function(sourceNodes, targetNodes, stream) {
  */
 
 Jaccard.prototype.cachedIndex = function(sourceNode, targetNode) {
-  var task = this.cachedIndex = wrap.call(this, this.getIndex); // lazy build
+  var task = wrap.call(this, this.getIndex);
+  if (this.expire) {
+    task = memoize(task, this.expire);
+  }
+  this.cachedIndex = task; // lazy build
   return task.call(this, sourceNode, targetNode);
 };
 
@@ -346,25 +342,39 @@ Jaccard.prototype.filter = through;
  * @private
  */
 
-function wrap(func) {
-  var task = run;
-  if (this.throttle || this.timeout) {
+function wrap(task) {
+  if (this.throttle) {
     task = promisen.throttle(task, this.throttle, this.timeout);
+  } else if (this.timeout) {
+    task = promisen.timeout(task, this.timeout);
   } else {
     task = promisen(task);
   }
-  if (this.expire) {
-    task = promisen.memoize(task, this.expire, this.getIdHash);
-  }
-  return wrapped;
+  return task;
+}
 
-  function wrapped() {
-    var arg = Array.prototype.slice.call(arguments);
-    return task.call(this, arg); // single argument requested
+/**
+ * @private
+ */
+
+function memoize(task, expire) {
+  var memo = promisen.memoize(unwrap, expire, hasher);
+  return enwrap;
+
+  function hasher(array) {
+    var that = this;
+    return JSON.stringify(array.map(function(node) {
+      return node && that.getId(node);
+    }));
   }
 
-  function run(arg) {
-    return func.apply(this, arg); // multiple arguments allowed
+  function enwrap() {
+    var array = Array.prototype.slice.call(arguments);
+    return memo.call(this, array); // single argument required
+  }
+
+  function unwrap(array) {
+    return task.apply(this, array); // multiple arguments allowed
   }
 }
 
