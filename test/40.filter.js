@@ -23,7 +23,7 @@ describe(TITLE, function() {
   it("0.001", function() {
     var options = {
       getList: getList,
-      round: round
+      filter: filter
     };
 
     var result = {
@@ -32,9 +32,9 @@ describe(TITLE, function() {
       "item3": {"item1": 0.667, "item2": 0.2}
     };
 
-    return Jaccard(options).getMatrix(source).then(check);
+    return Jaccard(options).getMatrix(source, source).then(check);
 
-    function round(index) {
+    function filter(index) {
       return Math.round(index * 1000) / 1000;
     }
 

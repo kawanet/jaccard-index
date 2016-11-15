@@ -169,8 +169,8 @@ Jaccard.prototype.getList = function(id) {
 /**
  * returns a matrix of Jaccard index for given IDs.
  *
- * @param sourceList {Array} array of source IDs
- * @param [targetList] {Array} array of target IDs
+ * @param sourceList {Array|Promise.<Array>} array of source IDs
+ * @param [targetList] {Array|Promise.<Array>} array of target IDs
  * @returns {Promise.<Object>}
  */
 
@@ -179,13 +179,13 @@ Jaccard.prototype.getMatrix = function(sourceList, targetList) {
   var matrix = {};
   var wait = that.wait && promisen.wait(that.wait);
   var hasGetId = (that.getId !== through);
-  var hasRound = (that.round !== through);
+  var hasFilter = (that.filter !== through);
   if (!targetList) targetList = sourceList;
 
   return promisen.eachSeries(sourceList, sourceIt)().then(done);
 
   function sourceIt(sourceId) {
-    var sourceKey = that.getId ? that.getId(sourceId) : sourceId;
+    var sourceKey = hasGetId ? that.getId(sourceId) : sourceId;
     var row = matrix[sourceKey] || (matrix[sourceKey] = {});
     return promisen.eachSeries(targetList, targetIt)();
 
@@ -193,18 +193,28 @@ Jaccard.prototype.getMatrix = function(sourceList, targetList) {
       var targetKey = hasGetId ? that.getId(targetId) : targetId;
       if (sourceKey === targetKey) return;
 
+      var job;
       if (!that.direction && targetId < sourceId) {
-        return that.cachedIndex(targetId, sourceId).then(then); // swapped
+        job = that.cachedIndex(targetId, sourceId); // swapped
       } else {
-        return that.cachedIndex(sourceId, targetId).then(then);
+        job = that.cachedIndex(sourceId, targetId);
       }
+
+      if (hasFilter) job = job.then(filter);
+
+      return job.then(then);
 
       function then(index) {
         if (index == null) return;
-        row[targetKey] = hasRound ? that.round(index) : index;
+        row[targetKey] = index;
         return wait && wait();
       }
     }
+  }
+
+  function filter(index) {
+    if (index == null) return;
+    return that.filter(index);
   }
 
   function done() {
@@ -306,20 +316,25 @@ Jaccard.prototype.index = function(sourceLog, targetLog) {
 Jaccard.prototype.getId = through;
 
 /**
- * returns a Jaccard index number rounded to be placed at the result matrix.
+ * returns a Jaccard index value to be placed at the result matrix.
  * This does nothing per default.
- * Override this function to apply any precision.
+ * Override this function to apply a precision or another format.
+ * Return null to ignore the index.
  *
  * @method
  * @param index {number} Jaccard index
- * @returns {number}
+ * @returns {number|Object}
  * @example
- * jaccard.round = function(index) {
- *   return Math.round(index * 1000) / 1000;
+ * jaccard.filter = function(index) {
+ *   return Math.filter(index * 1000) / 1000;
+ * };
+ * @example
+ * jaccard.filter = function(index) {
+ *   return (index > 0.001) ? index : null;
  * };
  */
 
-Jaccard.prototype.round = through;
+Jaccard.prototype.filter = through;
 
 /**
  * @private
