@@ -131,6 +131,7 @@ Jaccard.prototype.cachedLog = function(itemId) {
  * retrieves a log array.
  * Overriding this method is required before calling getMatrix() or getIndex() methods.
  *
+ * @method
  * @param itemId {string}
  * @returns {Array|Promise.<Array>}
  * @example
@@ -154,9 +155,15 @@ Jaccard.prototype.cachedLog = function(itemId) {
  * }
  */
 
-var getLog = Jaccard.prototype.getLog = function(itemId) {
+Jaccard.prototype.getLog = getLog;
+
+/**
+ * @private
+ */
+
+function getLog(itemId) {
   throw new Error("getLog method not implemented");
-};
+}
 
 /**
  * @private
