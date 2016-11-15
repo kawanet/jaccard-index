@@ -13,7 +13,7 @@ function try_require(name) {
   try {
     return require(name);
   } catch (e) {
-    console.warn("Module not loaded: " + name);
+    // console.warn("Module not loaded: " + name);
   }
 }
 
@@ -40,13 +40,13 @@ describe(TITLE, function() {
     assert.equal(jaccard.index(logs.item3, logs.item1), result.item3.item1);
   });
 
-  ectoIt("ecto/jaccard", function() {
+  ectoIt("ecto/jaccard" + (EctoJaccard ? "" : ": Module not loaded"), function() {
     assert.equal(EctoJaccard.index(logs.item1, logs.item2), result.item1.item2);
     assert.equal(EctoJaccard.index(logs.item2, logs.item3), result.item2.item3);
     assert.equal(EctoJaccard.index(logs.item3, logs.item1), result.item3.item1);
   });
 
-  godofIt("GodofKim/multiset-jaccard", function() {
+  godofIt("GodofKim/multiset-jaccard" + (GodofKimJaccard ? "" : ": Module not loaded"), function() {
     var usePolyfill = !Object.values;
     if (usePolyfill) Object.values = polyfillObjectValues;
     assert.equal(GodofKimJaccard.index(logs.item1, logs.item2), result.item1.item2);
