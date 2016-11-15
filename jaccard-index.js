@@ -29,9 +29,9 @@ module.exports = Jaccard;
  *
  * Jaccard(options).getMatrix(source).then(showResult).catch(console.warn);
  *
- * function getList(id) {
- *   return Promise.resolve(logs[id]); // async
- *   // return logs[id]; // sync
+ * function getList(node) {
+ *   return Promise.resolve(logs[node]); // async
+ *   // return logs[node]; // sync
  * }
  *
  * function showResult(matrix) {
@@ -101,12 +101,12 @@ Jaccard.prototype.throttle = 1;
 Jaccard.prototype.timeout = 60 * 1000;
 
 /**
- * returns a hash string made from ID object.
+ * returns a hash string made from node.
  * The built-in cache mechanism works with the hash string.
  * Override this only when you need any other hash function than JSON.stringify().
  *
  * @method
- * @param id {string|Object}
+ * @param node {string|Object}
  * @returns {string}
  */
 
@@ -123,23 +123,23 @@ Jaccard.prototype.getIdHash = JSON.stringify.bind(JSON);
 Jaccard.prototype.direction = false;
 
 /**
- * retrieves an array for ID with the built-in cache mechanism.
+ * retrieves a log array with the built-in cache mechanism.
  * This calls getList() method when the cache not available.
  *
- * @param id {string|Object} ID string or object
+ * @param node {string|Object}
  * @returns {Promise.<Array>}
  */
 
-Jaccard.prototype.cachedList = function(id) {
+Jaccard.prototype.cachedList = function(node) {
   var task = this.cachedList = wrap.call(this, this.getList); // lazy build
-  return task.call(this, id);
+  return task.call(this, node);
 };
 
 /**
- * retrieves an array for ID.
+ * retrieves a log array.
  * Overriding this method is required before calling getMatrix() or getIndex() methods.
  *
- * @param id {string|Object} ID string or object
+ * @param node {string|Object}
  * @returns {Array|Promise.<Array>}
  * @example
  * var fs = require("fs");
@@ -148,9 +148,9 @@ Jaccard.prototype.cachedList = function(id) {
  *
  * jaccard.getList = getList;
  *
- * function getList(id) {
+ * function getList(node) {
  *   return new Promise(function(resolve, reject) {
- *     var file = "test/example/" + id + ".txt";
+ *     var file = "test/example/" + node + ".txt";
  *     fs.readFile(file, "utf-8", function(err, text) {
  *       if (err) return reject(err);
  *       var data = text.split("\n").filter(function(v) {
@@ -162,7 +162,7 @@ Jaccard.prototype.cachedList = function(id) {
  * }
  */
 
-Jaccard.prototype.getList = function(id) {
+Jaccard.prototype.getList = function(node) {
   throw new Error("getList function not implemented");
 };
 
@@ -294,28 +294,28 @@ Jaccard.prototype.index = function(sourceLog, targetLog) {
   var longerLog = (sourceLen < targetLen) ? targetLog : sourceLog;
 
   var map = {};
-  Array.prototype.forEach.call(shorterLog, function(id) {
-    map[id] = 1;
+  Array.prototype.forEach.call(shorterLog, function(key) {
+    map[key] = 1;
   });
 
   var match = 0;
-  Array.prototype.forEach.call(longerLog, function(id) {
-    if (map[id]) match++;
+  Array.prototype.forEach.call(longerLog, function(key) {
+    if (map[key]) match++;
   });
 
   return match / (sourceLen + targetLen - match);
 };
 
 /**
- * stringify ID object to be placed at the result matrix.
+ * stringify a node object to be placed at the result matrix.
  * Just pass through per default.
  *
  * @method
- * @param id {string|Object} ID string or object
+ * @param node {string|Object}
  * @returns {string}
  * @example
- * jaccard.getId = function(id) {
- *   return id.toUpperCase();
+ * jaccard.getId = function(node) {
+ *   return node.toUpperCase();
  * };
  */
 

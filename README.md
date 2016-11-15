@@ -31,9 +31,9 @@ var options = {
 
 Jaccard(options).getMatrix(source).then(showResult).catch(console.warn);
 
-function getList(id) {
-  return Promise.resolve(logs[id]); // async loading
-  // return logs[id]; // sync loading
+function getList(node) {
+  return Promise.resolve(logs[node]); // async loading
+  // return logs[node]; // sync loading
 }
 
 function showResult(matrix) {
@@ -59,9 +59,9 @@ function showResult(matrix) {
 ```js
 var fs = require("fs");
 
-function getList(id) {
+function getList(node) {
   return new Promise(function(resolve, reject) {
-    var file = "test/example/" + id + ".txt";
+    var file = "test/example/" + node + ".txt";
     fs.readFile(file, "utf-8", function(err, text) {
       if (err) return reject(err);
       var list = text.split("\n").filter(function(v) {
