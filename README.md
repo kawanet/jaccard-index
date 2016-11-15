@@ -26,12 +26,12 @@ var logs = {
 var source = Object.keys(logs); // item1, item2, item3
 
 var options = {
-  getList: getList
+  getLog: getLog
 };
 
 Jaccard(options).getMatrix(source).then(showResult).catch(console.warn);
 
-function getList(node) {
+function getLog(node) {
   return Promise.resolve(logs[node]); // async loading
   // return logs[node]; // sync loading
 }
@@ -54,12 +54,12 @@ function showResult(matrix) {
 
 ### Async Loading:
 
-`getList()` method could return a Promise.
+`getLog()` method could return a Promise.
 
 ```js
 var fs = require("fs");
 
-function getList(node) {
+function getLog(node) {
   return new Promise(function(resolve, reject) {
     var file = "test/example/" + node + ".txt";
     fs.readFile(file, "utf-8", function(err, text) {

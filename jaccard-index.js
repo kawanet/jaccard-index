@@ -24,12 +24,12 @@ module.exports = Jaccard;
  * var source = Object.keys(logs); // item1, item2, item3
  *
  * var options = {
- *   getList: getList
+ *   getLog: getLog
  * };
  *
  * Jaccard(options).getMatrix(source).then(showResult).catch(console.warn);
  *
- * function getList(node) {
+ * function getLog(node) {
  *   return Promise.resolve(logs[node]); // async
  *   // return logs[node]; // sync
  * }
@@ -112,18 +112,18 @@ Jaccard.prototype.direction = false;
 
 /**
  * retrieves a log array with the built-in cache mechanism.
- * This calls getList() method when the cache not available.
+ * This calls getLog() method when the cache not available.
  *
  * @param node {string|Object}
  * @returns {Promise.<Array>}
  */
 
-Jaccard.prototype.cachedList = function(node) {
-  var task = wrap.call(this, this.getList);
+Jaccard.prototype.cachedLog = function(node) {
+  var task = wrap.call(this, this.getLog);
   if (this.expire) {
     task = promisen.memoize(task, this.expire, this.getId);
   }
-  this.cachedList = task; // lazy build
+  this.cachedLog = task; // lazy build
   return task.call(this, node);
 };
 
@@ -138,9 +138,9 @@ Jaccard.prototype.cachedList = function(node) {
  * var Jaccard = require("jaccard-index");
  * var jaccard = Jaccard();
  *
- * jaccard.getList = getList;
+ * jaccard.getLog = getLog;
  *
- * function getList(node) {
+ * function getLog(node) {
  *   return new Promise(function(resolve, reject) {
  *     var file = "test/example/" + node + ".txt";
  *     fs.readFile(file, "utf-8", function(err, text) {
@@ -154,8 +154,8 @@ Jaccard.prototype.cachedList = function(node) {
  * }
  */
 
-Jaccard.prototype.getList = function(node) {
-  throw new Error("getList function not implemented");
+Jaccard.prototype.getLog = function(node) {
+  throw new Error("getLog function not implemented");
 };
 
 /**
@@ -249,9 +249,9 @@ Jaccard.prototype.cachedIndex = function(sourceNode, targetNode) {
 Jaccard.prototype.getIndex = function(sourceNode, targetNode) {
   var that = this;
 
-  return that.cachedList(sourceNode).then(function(sourceLog) {
+  return that.cachedLog(sourceNode).then(function(sourceLog) {
     if (!sourceLog) return;
-    return that.cachedList(targetNode).then(function(targetLog) {
+    return that.cachedLog(targetNode).then(function(targetLog) {
       if (!targetLog) return;
       return that.index(sourceLog, targetLog);
     });

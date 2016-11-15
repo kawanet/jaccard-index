@@ -5,7 +5,7 @@
 var fs = require("fs");
 var Jaccard = require("../");
 
-function getList(file) {
+function getLog(file) {
   // return new Promise(then); // Promise
   return {then: then}; // Thenable
 
@@ -69,7 +69,7 @@ function CLI() {
 
   var jaccard = new Jaccard();
   jaccard.expire = 1000;
-  jaccard.getList = getList;
+  jaccard.getLog = getLog;
   jaccard.getId = getId;
   jaccard.round = round;
 

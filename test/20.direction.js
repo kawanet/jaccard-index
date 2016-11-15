@@ -22,12 +22,12 @@ describe(TITLE, function() {
     "item3": {"item1": 2 / 3, "item2": 0.2}
   };
 
-  function getList(id) {
+  function getLog(id) {
     return logs[id];
   }
 
   it("direction: true", function() {
-    var jaccard = new Jaccard({direction: true, getList: getList});
+    var jaccard = new Jaccard({direction: true, getLog: getLog});
     jaccard = wrapCalcCounter(jaccard);
     var stream = createCounterStream();
     return jaccard.getMatrix(source, null, stream).then(check);
@@ -41,7 +41,7 @@ describe(TITLE, function() {
   });
 
   it("direction: false", function() {
-    var jaccard = new Jaccard({direction: false, getList: getList});
+    var jaccard = new Jaccard({direction: false, getLog: getLog});
     jaccard = wrapCalcCounter(jaccard);
     var stream = createCounterStream();
     return jaccard.getMatrix(source, null, stream).then(check);

@@ -16,13 +16,13 @@ describe(TITLE, function() {
 
   var source = Object.keys(logs); // item1, item2, item3
 
-  function getList(id) {
+  function getLog(id) {
     return logs[id];
   }
 
   it("Math.floor()", function() {
     var options = {
-      getList: getList,
+      getLog: getLog,
       filter: filter
     };
 
@@ -45,7 +45,7 @@ describe(TITLE, function() {
 
   it("conditional", function() {
     var options = {
-      getList: getList,
+      getLog: getLog,
       filter: filter
     };
 
@@ -68,7 +68,7 @@ describe(TITLE, function() {
 
   it("filter(index, sourceNode, targetNode)", function() {
     var options = {
-      getList: getList,
+      getLog: getLog,
       filter: filter
     };
 

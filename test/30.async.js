@@ -17,7 +17,7 @@ describe(TITLE, function() {
     "item3": {"item1": 2 / 3, "item2": 0.2}
   };
 
-  function getList(id) {
+  function getLog(id) {
     // return new Promise(then); // Promise
     return {then: then}; // Thenable
 
@@ -32,7 +32,7 @@ describe(TITLE, function() {
   }
 
   it("async", function() {
-    var jaccard = new Jaccard({direction: true, getList: getList});
+    var jaccard = new Jaccard({direction: true, getLog: getLog});
     return jaccard.getMatrix(source).then(check);
 
     function check(matrix) {

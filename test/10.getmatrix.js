@@ -19,12 +19,12 @@ describe(TITLE, function() {
   var source = Object.keys(logs); // item1, item2, item3
 
   var options = {
-    getList: getList
+    getLog: getLog
   };
 
   // Jaccard(options).getMatrix(source).then(showResult).catch(console.warn);
 
-  function getList(id) {
+  function getLog(id) {
     return logs[id];
   }
 

@@ -17,11 +17,11 @@ describe(TITLE, function() {
   var source = Object.keys(logs).map(wrapId);
 
   var options = {
-    getList: getList,
+    getLog: getLog,
     getId: unwrapId
   };
 
-  function getList(id) {
+  function getLog(id) {
     return logs[id.ID];
   }
 
