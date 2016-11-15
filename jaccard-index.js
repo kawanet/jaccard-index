@@ -154,14 +154,67 @@ Jaccard.prototype.cachedLog = function(item) {
  * }
  */
 
-Jaccard.prototype.getLog = function(item) {
-  throw new Error("getLog function not implemented");
+var getLog = Jaccard.prototype.getLog = function(item) {
+  throw new Error("getLog method not implemented");
 };
+
+/**
+ * @private
+ */
+
+function _getLog(item) {
+  var logs = this.logs || (this.logs = {});
+  var id = this.getId(item);
+  var row = logs[id];
+  if (row) return Object.keys(row);
+}
+
+/**
+ * imports a transaction.
+ * This generates getLog() method.
+ *
+ * @param item {string|Object}
+ * @param userId {string}
+ */
+
+Jaccard.prototype.addLog = function(item, userId) {
+  var logs = this.logs;
+  if (!logs) {
+    if (this.getLog !== getLog) {
+      throw new Error("getLog method already implemented");
+    }
+    logs = this.logs = {};
+    this.getLog = _getLog;
+    this.getItems = _getItems;
+  }
+  var id = this.getId(item);
+  var row = logs[id] || (logs[id] = {});
+  row[userId]++;
+};
+
+/**
+ * returns array of items.
+ * Override this only when needed.
+ *
+ * @returns {Array}
+ */
+
+Jaccard.prototype.getItems = function() {
+  throw new Error("getItems method not implemented");
+};
+
+/**
+ * @private
+ */
+
+function _getItems() {
+  if (this.logs) return Object.keys(this.logs);
+}
 
 /**
  * returns a matrix of Jaccard index for items given.
  *
- * @param sourceItems {Array|Promise.<Array>} array of source items
+ * @param [sourceItems] {Array|Promise.<Array>} array of source items
  * @param [targetItems] {Array|Promise.<Array>} array of target items
  * @param [stream] {WritableStream} stream to write links
  * @returns {Promise.<Object>}
@@ -175,14 +228,15 @@ Jaccard.prototype.getMatrix = function(sourceItems, targetItems, stream) {
   var hasFilter = (that.filter !== through);
   var hasStream = stream && !!stream.write;
   var noDirection = !that.direction;
+  if (!sourceItems) sourceItems = this.getItems;
   if (!targetItems) targetItems = sourceItems;
 
-  return promisen.eachSeries(sourceItems, sourceIt)().then(done);
+  return promisen.eachSeries(sourceItems, sourceIt).call(this).then(done);
 
   function sourceIt(sourceItem) {
     var sourceId = hasGetId ? that.getId(sourceItem) : sourceItem;
     var row = matrix[sourceId] || (matrix[sourceId] = {});
-    return promisen.eachSeries(targetItems, targetIt)();
+    return promisen.eachSeries(targetItems, targetIt).call(this);
 
     function targetIt(targetItem) {
       var targetId = hasGetId ? that.getId(targetItem) : targetItem;
