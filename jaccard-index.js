@@ -261,7 +261,7 @@ Jaccard.prototype.getMatrix = function(sourceItems, targetItems, stream) {
 
       function then(index) {
         if (index == null) return;
-        row[targetId] = index;
+        if (!hasStream) row[targetId] = index;
         if (hasStream && !swap) stream.write(index);
         return wait && wait();
       }
@@ -270,7 +270,7 @@ Jaccard.prototype.getMatrix = function(sourceItems, targetItems, stream) {
 
   function done() {
     if (hasStream && !!stream.end) stream.end();
-    return matrix;
+    return hasStream ? stream : matrix;
   }
 };
 
