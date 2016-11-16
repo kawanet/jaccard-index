@@ -16,11 +16,12 @@ describe(TITLE, function() {
 
   var items = Object.keys(logs); // item1, item2, item3
 
-  var result = {
-    "item1": {"item2": 0.25, "item3": 2 / 3},
-    "item2": {"item1": 0.25, "item3": 0.2},
-    "item3": {"item1": 2 / 3, "item2": 0.2}
-  };
+  var link12 = {source: "item1", target: "item2", value: 0.25};
+  var link13 = {source: "item1", target: "item3", value: 2 / 3};
+  var link21 = {source: "item2", target: "item1", value: 0.25};
+  var link23 = {source: "item2", target: "item3", value: 0.2};
+  var link31 = {source: "item3", target: "item1", value: 2 / 3};
+  var link32 = {source: "item3", target: "item2", value: 0.2};
 
   function getLog(id) {
     return logs[id];
@@ -29,10 +30,11 @@ describe(TITLE, function() {
   it("direction: true", function() {
     var jaccard = new Jaccard({direction: true, getLog: getLog});
     jaccard = wrapCalcCounter(jaccard);
-    return jaccard.getMatrix(items).then(check);
+    return jaccard.getLinks(items).then(check);
 
-    function check(matrix) {
-      assert.deepEqual(matrix, result);
+    function check(links) {
+      var expected = [link12, link13, link21, link23, link31, link32];
+      assert.deepEqual(links, expected);
       assert.equal(jaccard._counter, 6);
     }
   });
@@ -40,10 +42,11 @@ describe(TITLE, function() {
   it("direction: false", function() {
     var jaccard = new Jaccard({direction: false, getLog: getLog});
     jaccard = wrapCalcCounter(jaccard);
-    return jaccard.getMatrix(items).then(check);
+    return jaccard.getLinks(items).then(check);
 
-    function check(matrix) {
-      assert.deepEqual(matrix, result);
+    function check(links) {
+      var expected = [link12, link13, link23];
+      assert.deepEqual(links, expected);
       assert.equal(jaccard._counter, 3); // other pairs refer cached results
     }
   });

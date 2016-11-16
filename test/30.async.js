@@ -11,11 +11,10 @@ var TITLE = __filename.replace(/^.*\//, "");
 describe(TITLE, function() {
   var source = ["item1", "item2", "item3"];
 
-  var result = {
-    "item1": {"item2": 0.25, "item3": 2 / 3},
-    "item2": {"item1": 0.25, "item3": 0.2},
-    "item3": {"item1": 2 / 3, "item2": 0.2}
-  };
+  var link12 = {source: "item1", target: "item2", value: 0.25};
+  var link13 = {source: "item1", target: "item3", value: 2 / 3};
+  var link23 = {source: "item2", target: "item3", value: 0.2};
+  var expected = [link12, link13, link23];
 
   function getLog(id) {
     // return new Promise(then); // Promise
@@ -32,11 +31,11 @@ describe(TITLE, function() {
   }
 
   it("async", function() {
-    var jaccard = new Jaccard({direction: true, getLog: getLog});
-    return jaccard.getMatrix(source).then(check);
+    var jaccard = new Jaccard({getLog: getLog});
+    return jaccard.getLinks(source).then(check);
 
-    function check(matrix) {
-      assert.deepEqual(matrix, result);
+    function check(links) {
+      assert.deepEqual(links, expected);
     }
   });
 });

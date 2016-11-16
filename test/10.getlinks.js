@@ -22,30 +22,28 @@ describe(TITLE, function() {
     getLog: getLog
   };
 
-  // Jaccard(options).getMatrix(source).then(showResult).catch(console.warn);
+  // Jaccard(options).getLinks(source).then(showResult).catch(console.warn);
 
   function getLog(id) {
     return logs[id];
   }
 
-  var result = {
-    "item1": {"item2": 0.25, "item3": 2 / 3},
-    "item2": {"item1": 0.25, "item3": 0.2},
-    "item3": {"item1": 2 / 3, "item2": 0.2}
-  };
+  var link12 = {source: "item1", target: "item2", value: 0.25};
+  var link13 = {source: "item1", target: "item3", value: 2 / 3};
+  var link23 = {source: "item2", target: "item3", value: 0.2};
 
   it("index(sourceLog, targetLog)", function() {
     var jaccard = Jaccard();
-    assert.equal(jaccard.index(logs.item1, logs.item2), result.item1.item2);
-    assert.equal(jaccard.index(logs.item2, logs.item3), result.item2.item3);
-    assert.equal(jaccard.index(logs.item3, logs.item1), result.item3.item1);
+    assert.equal(jaccard.index(logs.item1, logs.item2), link12.value);
+    assert.equal(jaccard.index(logs.item2, logs.item3), link23.value);
+    assert.equal(jaccard.index(logs.item3, logs.item1), link13.value);
   });
 
   it("getIndex(sourceItem, targetItem)", function() {
     return Jaccard(options).getIndex("item1", "item2").then(check);
 
     function check(index) {
-      assert.deepEqual(result.item1.item2, index);
+      assert.deepEqual(index, link12.value);
     }
   });
 
@@ -53,23 +51,23 @@ describe(TITLE, function() {
     return Jaccard(options).cachedIndex("item2", "item3").then(check);
 
     function check(index) {
-      assert.deepEqual(result.item2.item3, index);
+      assert.deepEqual(index, link23.value);
     }
   });
 
-  it("getMatrix(sourceItems, targetItems)", function() {
-    return Jaccard(options).getMatrix(["item1"], source).then(check);
+  it("getLinks(sourceItems, targetItems)", function() {
+    return Jaccard(options).getLinks(["item1"], source).then(check);
 
-    function check(matrix) {
-      assert.deepEqual(matrix, {"item1": result.item1});
+    function check(links) {
+      assert.deepEqual(links, [link12, link13]);
     }
   });
 
-  it("getMatrix(sourceItems)", function() {
-    return Jaccard(options).getMatrix(source).then(check);
+  it("getLinks(sourceItems)", function() {
+    return Jaccard(options).getLinks(source).then(check);
 
-    function check(matrix) {
-      assert.deepEqual(matrix, result);
+    function check(links) {
+      assert.deepEqual(links, [link12, link13, link23]);
     }
   });
 });

@@ -26,20 +26,19 @@ describe(TITLE, function() {
       filter: filter
     };
 
-    var result = {
-      "item1": {"item2": 0.25, "item3": 0.667},
-      "item2": {"item1": 0.25, "item3": 0.2},
-      "item3": {"item1": 0.667, "item2": 0.2}
-    };
+    var link12 = {source: "item1", target: "item2", value: 0.3};
+    var link13 = {source: "item1", target: "item3", value: 0.7};
+    var link23 = {source: "item2", target: "item3", value: 0.2};
+    var expected = [link12, link13, link23];
 
-    return Jaccard(options).getMatrix(source, source).then(check);
+    return Jaccard(options).getLinks(source).then(check);
 
     function filter(index) {
-      return Math.round(index * 1000) / 1000;
+      return Math.round(index * 10) / 10;
     }
 
-    function check(matrix) {
-      assert.deepEqual(result, matrix);
+    function check(links) {
+      assert.deepEqual(links, expected);
     }
   });
 
@@ -49,20 +48,18 @@ describe(TITLE, function() {
       filter: filter
     };
 
-    var result = {
-      "item1": {"item2": 0.25, "item3": 2 / 3},
-      "item2": {"item1": 0.25},
-      "item3": {"item1": 2 / 3}
-    };
+    var link12 = {source: "item1", target: "item2", value: 0.25};
+    var link13 = {source: "item1", target: "item3", value: 2 / 3};
+    var expected = [link12, link13];
 
-    return Jaccard(options).getMatrix(source, source).then(check);
+    return Jaccard(options).getLinks(source).then(check);
 
     function filter(index) {
       return index > 0.2 ? index : null;
     }
 
-    function check(matrix) {
-      assert.deepEqual(result, matrix);
+    function check(links) {
+      assert.deepEqual(links, expected);
     }
   });
 
@@ -72,20 +69,19 @@ describe(TITLE, function() {
       filter: filter
     };
 
-    var result = {
-      "item1": {"item2": "item1/item2/25%", "item3": "item1/item3/66%"},
-      "item2": {"item1": "item2/item1/25%", "item3": "item2/item3/20%"},
-      "item3": {"item1": "item3/item1/66%", "item2": "item3/item2/20%"}
-    };
+    var link12 = {source: "item1", target: "item2", value: "item1/item2/25%"};
+    var link13 = {source: "item1", target: "item3", value: "item1/item3/66%"};
+    var link23 = {source: "item2", target: "item3", value: "item2/item3/20%"};
+    var expected = [link12, link13, link23];
 
-    return Jaccard(options).getMatrix(source).then(check);
+    return Jaccard(options).getLinks(source).then(check);
 
     function filter(index, sourceItem, targetItem) {
       return [sourceItem, targetItem, Math.floor(index * 100) + "%"].join("/");
     }
 
-    function check(matrix) {
-      assert.deepEqual(result, matrix);
+    function check(links) {
+      assert.deepEqual(links, expected);
     }
   });
 });

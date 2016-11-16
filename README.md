@@ -1,6 +1,6 @@
 # jaccard-index
 
-Promise-based Jaccard similarity coefficient index matrix calculation framework
+Promise-based Jaccard similarity coefficient index calculation framework
 
 [![npm version](https://badge.fury.io/js/jaccard-index.svg)](http://badge.fury.io/js/jaccard-index) [![Build Status](https://travis-ci.org/kawanet/jaccard-index.svg?branch=master)](https://travis-ci.org/kawanet/jaccard-index)
 
@@ -10,7 +10,7 @@ Promise-based Jaccard similarity coefficient index matrix calculation framework
 - Promise-based asynchronous data source loading
 - Built-in on-memory cache mechanism with automatic expiration
 - Concurrency throttle for huge data sets
-- Both directional and no-directional graph matrix
+- Both directional and no-directional graph links
 
 ## SYNOPSIS
 
@@ -29,15 +29,15 @@ var options = {
   getLog: getLog
 };
 
-Jaccard(options).getMatrix(items).then(showResult).catch(console.warn);
+Jaccard(options).getLinks(items).then(showResult).catch(console.warn);
 
 function getLog(item) {
   return Promise.resolve(logs[item]); // async loading
   // return logs[item]; // sync loading
 }
 
-function showResult(matrix) {
-  console.log(JSON.stringify(matrix, null, 2));
+function showResult(links) {
+  console.log(JSON.stringify(links, null, 2));
   process.exit(0);
 }
 ```
@@ -45,11 +45,11 @@ function showResult(matrix) {
 ### Result:
 
 ```json
-{
-  "item1": {"item2": 0.25, "item3": 0.6666666666666666},
-  "item2": {"item1": 0.25, "item3": 0.2},
-  "item3": {"item1": 0.6666666666666666, "item2": 0.2}
-}
+[
+  {"source": "item1", "target": "item2", "value": 0.25},
+  {"source": "item1", "target": "item3", "value": 0.6666666666666666},
+  {"source": "item2", "target": "item3", "value": 0.2}
+]
 ```
 
 ### Async Loading:

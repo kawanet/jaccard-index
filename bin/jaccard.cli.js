@@ -22,7 +22,7 @@ function isTrue(v) {
   return !!v;
 }
 
-function getId(file) {
+function filename(file) {
   return file.replace(/^.*\//, "");
 }
 
@@ -30,18 +30,31 @@ function round(index) {
   return Math.round(index * 1000) / 1000;
 }
 
-function matrixToTable(matrix) {
-  var columns = Object.keys(matrix);
-  var table = columns.map(function(rowId) {
-    var row = matrix[rowId];
-    var record = row ? columns.map(function(colId) {
-      return row[colId];
-    }) : [];
-    record.unshift(rowId);
-    return record;
+function linksToTable(links) {
+  var header = [""];
+  var table = [header];
+  var rows = {};
+  var cols = {};
+
+  links.forEach(function(link) {
+    add(link.source, link.target, link.value);
+    add(link.target, link.source, link.value);
   });
-  columns.unshift("");
-  table.unshift(columns);
+
+  function add(source, target, value) {
+    var row = rows[source];
+    if (!row) {
+      row = rows[source] = [filename(source)];
+      table.push(row);
+    }
+    var col = cols[target];
+    if (!col) {
+      col = cols[target] = header.length;
+      header.push(filename(target));
+    }
+    row[col] = value;
+  }
+
   return table;
 }
 
@@ -60,44 +73,35 @@ function escapeCSV(str) {
 function CLI() {
   var args = Array.prototype.slice.call(process.argv, 2);
   var csv = (args[0] === "--csv") && args.shift();
-  var stream = (args[0] === "--stream") && args.shift() && process.stdout;
 
   if (!args.length) {
     var cmd = process.argv[1].split("/").pop();
-    console.warn("Usage: " + cmd + " [--csv] [--stream] item1.txt item2.txt item3.txt...");
+    console.warn("Usage: " + cmd + " [--csv] item1.txt item2.txt item3.txt...");
     process.exit(1);
   }
 
   var jaccard = new Jaccard();
   jaccard.expire = 1000;
   jaccard.getLog = getLog;
-  jaccard.getId = getId;
-  jaccard.round = round;
+  jaccard.filter = round;
 
-  if (stream) {
-    jaccard.filter = function(index, source, target) {
-      return [source, target, index].join(",") + "\n";
-    };
-  }
+  var job = jaccard.getLinks(args, null);
 
-  var job = jaccard.getMatrix(args, null, stream);
-
-  if (!stream) {
-    if (csv) {
-      job = job.then(function(matrix) {
-        return tableToCSV(matrixToTable(matrix));
-      });
-    } else {
-      job = job.then(function(matrix) {
-        return JSON.stringify(matrix, null, 2);
-      });
-    }
-    job = job.then(function(data) {
-      process.stdout.write(data);
+  if (csv) {
+    job = job.then(function(links) {
+      return tableToCSV(linksToTable(links));
+    });
+  } else {
+    job = job.then(function(links) {
+      return JSON.stringify(links, null, 2);
     });
   }
 
-  return job.then(process.exit); // kill self
+  return job.then(show).then(process.exit); // kill self
+}
+
+function show(data) {
+  process.stdout.write(data);
 }
 
 function fatal(reason) {

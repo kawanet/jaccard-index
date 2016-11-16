@@ -27,31 +27,29 @@ describe(TITLE, function() {
     "item3": ["user1", "user2", "user5"]
   };
 
-  var result = {
-    "item1": {"item2": 0.25, "item3": 2 / 3},
-    "item2": {"item1": 0.25, "item3": 0.2},
-    "item3": {"item1": 2 / 3, "item2": 0.2}
-  };
+  var link12 = {source: "item1", target: "item2", value: 0.25};
+  var link13 = {source: "item1", target: "item3", value: 2 / 3};
+  var link23 = {source: "item2", target: "item3", value: 0.2};
 
   it("kawanet/jaccard-index", function() {
     var jaccard = Jaccard();
-    assert.equal(jaccard.index(logs.item1, logs.item2), result.item1.item2);
-    assert.equal(jaccard.index(logs.item2, logs.item3), result.item2.item3);
-    assert.equal(jaccard.index(logs.item3, logs.item1), result.item3.item1);
+    assert.equal(jaccard.index(logs.item1, logs.item2), link12.value);
+    assert.equal(jaccard.index(logs.item2, logs.item3), link23.value);
+    assert.equal(jaccard.index(logs.item3, logs.item1), link13.value);
   });
 
   ectoIt("ecto/jaccard" + (EctoJaccard ? "" : ": Module not loaded"), function() {
-    assert.equal(EctoJaccard.index(logs.item1, logs.item2), result.item1.item2);
-    assert.equal(EctoJaccard.index(logs.item2, logs.item3), result.item2.item3);
-    assert.equal(EctoJaccard.index(logs.item3, logs.item1), result.item3.item1);
+    assert.equal(EctoJaccard.index(logs.item1, logs.item2), link12.value);
+    assert.equal(EctoJaccard.index(logs.item2, logs.item3), link23.value);
+    assert.equal(EctoJaccard.index(logs.item3, logs.item1), link13.value);
   });
 
   godofIt("GodofKim/multiset-jaccard" + (GodofKimJaccard ? "" : ": Module not loaded"), function() {
     var usePolyfill = !Object.values;
     if (usePolyfill) Object.values = polyfillObjectValues;
-    assert.equal(GodofKimJaccard.index(logs.item1, logs.item2), result.item1.item2);
-    assert.equal(GodofKimJaccard.index(logs.item2, logs.item3), result.item2.item3);
-    assert.equal(GodofKimJaccard.index(logs.item3, logs.item1), result.item3.item1);
+    assert.equal(GodofKimJaccard.index(logs.item1, logs.item2), link12.value);
+    assert.equal(GodofKimJaccard.index(logs.item2, logs.item3), link23.value);
+    assert.equal(GodofKimJaccard.index(logs.item3, logs.item1), link13.value);
     if (usePolyfill) delete Object.values;
   });
 });

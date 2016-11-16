@@ -1,7 +1,7 @@
 {
   "name": "jaccard-index",
-  "description": "Promise-based Jaccard similarity coefficient index matrix calculation framework",
-  "version": "0.1.0",
+  "description": "Promise-based Jaccard similarity coefficient index calculation framework",
+  "version": "0.2.0",
   "author": "@kawanet",
   "bin": {
     "jaccard-index": "bin/jaccard.cli.js"
@@ -26,6 +26,7 @@
   "keywords": [
     "collaborative",
     "jaccard",
+    "link",
     "promise",
     "similarity"
   ],

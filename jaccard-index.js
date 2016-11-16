@@ -5,6 +5,12 @@ var promisen = require("promisen");
 module.exports = Jaccard;
 
 /**
+ * @private
+ */
+
+var _SEP = "\x00";
+
+/**
  * Promise-based Jaccard similarity coefficient index matrix calculation framework
  *
  * @param [options] {Object}
@@ -27,24 +33,24 @@ module.exports = Jaccard;
  *   getLog: getLog
  * };
  *
- * Jaccard(options).getMatrix(items).then(showResult).catch(console.warn);
+ * Jaccard(options).getLinks(items).then(showResult).catch(console.warn);
  *
  * function getLog(itemId) {
  *   return Promise.resolve(logs[itemId]); // async
  *   // return logs[itemId]; // sync
  * }
  *
- * function showResult(matrix) {
- *   console.log(JSON.stringify(matrix, null, 2));
+ * function showResult(links) {
+ *   console.log(JSON.stringify(links, null, 2));
  *   process.exit(0);
  * }
  *
  * // Result:
- * // {
- * //   "item1": {"item2": 0.25, "item3": 0.6666666666666666},
- * //   "item2": {"item1": 0.25, "item3": 0.2},
- * //   "item3": {"item1": 0.6666666666666666, "item2": 0.2}
- * // }
+ * // [
+ * //   {"source": "item1", "target": "item2", "value": 0.25},
+ * //   {"source": "item1", "target": "item3", "value": 0.6666666666666666},
+ * //   {"source": "item2", "target": "item3", "value": 0.2}
+ * // ]
  */
 
 function Jaccard(options) {
@@ -217,44 +223,43 @@ function _getItems() {
 }
 
 /**
- * returns a matrix of Jaccard index for items given.
+ * returns an Array of Jaccard index of each links.
  *
  * @param [sourceItems] {Array|Promise.<Array>} array of source items
  * @param [targetItems] {Array|Promise.<Array>} array of target items
- * @param [stream] {WritableStream} stream to write links
- * @returns {Promise.<Object>}
+ * @param [onLink] {Function} function(index, sourceItem, targetItem) {...}
+ * @returns {Promise.<Array>}
  */
 
-Jaccard.prototype.getMatrix = function(sourceItems, targetItems, stream) {
+Jaccard.prototype.getLinks = function(sourceItems, targetItems, onLink) {
   var that = this;
-  var matrix = {};
-  var wait = that.wait && promisen.wait(that.wait);
+  var links;
+  var check = {};
+  var wait = (that.wait != null) && promisen.wait(that.wait);
   var hasFilter = (that.filter !== through);
-  var hasStream = stream && !!stream.write;
   var noDirection = !that.direction;
-  if (!sourceItems) sourceItems = this.getItems;
+  if (!sourceItems) sourceItems = that.getItems;
   if (!targetItems) targetItems = sourceItems;
+  if (!onLink) onLink = _onLink;
 
   return promisen.eachSeries(sourceItems, sourceIt).call(that).then(done);
 
   function sourceIt(sourceItem) {
-    var row = matrix[sourceItem] || (matrix[sourceItem] = {});
     return promisen.eachSeries(targetItems, targetIt).call(that);
 
     function targetIt(targetItem) {
       if (sourceItem === targetItem) return;
 
-      var swap = noDirection && (targetItem < sourceItem);
-      var job;
-      if (swap) {
-        job = that.cachedIndex(targetItem, sourceItem); // swapped
-      } else {
-        job = that.cachedIndex(sourceItem, targetItem);
+      if (noDirection) {
+        var asc = sourceItem + _SEP + targetItem;
+        var desc = targetItem + _SEP + sourceItem;
+        if (check[asc] || check[desc]) return;
+        check[asc] = check[desc] = 1;
       }
 
+      var job = that.cachedIndex(sourceItem, targetItem);
       if (hasFilter) job = job.then(filter);
-
-      return job.then(then);
+      return job.then(then).then(wait);
 
       function filter(index) {
         if (index == null) return;
@@ -263,16 +268,18 @@ Jaccard.prototype.getMatrix = function(sourceItems, targetItems, stream) {
 
       function then(index) {
         if (index == null) return;
-        if (!hasStream) row[targetItem] = index;
-        if (hasStream && !swap) stream.write(index);
-        return wait && wait();
+        return onLink.call(that, index, sourceItem, targetItem);
       }
     }
   }
 
+  function _onLink(index, sourceItem, targetItem) {
+    if (!links) links = [];
+    links.push({source: sourceItem, target: targetItem, value: index});
+  }
+
   function done() {
-    if (hasStream && !!stream.end && !stream._isStdio) stream.end();
-    return hasStream ? stream : matrix;
+    return links;
   }
 };
 
@@ -366,7 +373,7 @@ Jaccard.prototype.index = function(sourceLog, targetLog) {
  *
  * @method
  * @param index {number} Jaccard index
- * @returns {number|Object}
+ * @returns {number|Object|null}
  * @example
  * jaccard.filter = function(index) {
  *   return Math.filter(index * 1000) / 1000;
