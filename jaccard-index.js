@@ -11,7 +11,7 @@ module.exports = Jaccard;
 var _SEP = "\x00";
 
 /**
- * Promise-based Jaccard similarity coefficient index matrix calculation framework
+ * Promise-based Jaccard similarity coefficient index calculation framework
  *
  * @param [options] {Object}
  * @returns {Jaccard}
@@ -64,24 +64,23 @@ function Jaccard(options) {
 
 /**
  * Time in millisecond to wait between each calculating iteration to avoid Node process locked.
- * Set null to disable any wait.
+ * Set null to disable any additional wait.
  *
- * @type {number|undefined}
+ * @type {number|null}
  * @default 0
  */
 
-Jaccard.prototype.wait = 0;
+Jaccard.prototype.wait = null;
 
 /**
- * Time in millisecond to expire caches used in this module.
- * One minute per default.
- * Set null to disable the cache.
+ * Time in millisecond to expire cached results.
+ * Set null to disable the cache feature.
  *
- * @type {number}
- * @default 60000
+ * @type {number|null}
+ * @default null
  */
 
-Jaccard.prototype.expire = 60 * 1000;
+Jaccard.prototype.expire = null;
 
 /**
  * Concurrency to run data loading and index calculating.
@@ -89,25 +88,24 @@ Jaccard.prototype.expire = 60 * 1000;
  * The other tasks would wait to start until the first task completed.
  * Set null to disable the throttle.
  *
- * @type {number}
+ * @type {number|null}
  * @default 1
  */
 
 Jaccard.prototype.throttle = 1;
 
 /**
- * Timeout in millisecond until receiving result.
- * One minute per default.
+ * Timeout in millisecond until receiving a result.
  * Set null to disable the timeout.
  *
- * @type {number}
- * @default 60000
+ * @type {number|null}
+ * @default null
  */
 
-Jaccard.prototype.timeout = 60 * 1000;
+Jaccard.prototype.timeout = null;
 
 /**
- * False when source and target are swappable.
+ * Set false when source and target are swappable.
  * Set true when they have a direction.
  *
  * @type {boolean}
@@ -126,7 +124,7 @@ Jaccard.prototype.direction = false;
 
 Jaccard.prototype.cachedLog = function(itemId) {
   var task = wrap.call(this, this.getLog);
-  if (this.expire) {
+  if (this.expire >= 0) {
     task = promisen.memoize(task, this.expire);
   }
   this.cachedLog = task; // lazy build
@@ -135,14 +133,15 @@ Jaccard.prototype.cachedLog = function(itemId) {
 
 /**
  * retrieves a log array.
- * Overriding this method is required before calling getMatrix() or getIndex() methods.
+ * Overriding this method is required before calling getLinks() or getIndex() methods.
  *
  * @method
  * @param itemId {string}
- * @returns {Array|Promise.<Array>}
+ * @returns {Array.<string>|Promise.<Array>}
  * @example
  * var fs = require("fs");
  * var Jaccard = require("jaccard-index");
+ *
  * var jaccard = Jaccard();
  *
  * jaccard.getLog = getLog;
@@ -166,10 +165,10 @@ Jaccard.prototype.getLog = function(itemId) {
 };
 
 /**
- * returns array of items.
+ * returns array of all items.
  * Override this only when needed.
  *
- * @returns {Array}
+ * @returns {Array.<string>}
  */
 
 Jaccard.prototype.getItems = function() {
@@ -179,8 +178,8 @@ Jaccard.prototype.getItems = function() {
 /**
  * returns an Array of Jaccard index of each links.
  *
- * @param [sourceItems] {Array|Promise.<Array>} array of source items
- * @param [targetItems] {Array|Promise.<Array>} array of target items
+ * @param [sourceItems] {Array.<string>|Promise.<Array>} array of source items
+ * @param [targetItems] {Array.<string>|Promise.<Array>} array of target items
  * @param [onLink] {Function} function(index, sourceItem, targetItem) {...}
  * @returns {Promise.<Array>}
  */
@@ -250,7 +249,7 @@ Jaccard.prototype.getLinks = function(sourceItems, targetItems, onLink) {
 
 Jaccard.prototype.cachedIndex = function(sourceItem, targetItem) {
   var task = wrap.call(this, this.getIndex);
-  if (this.expire) {
+  if (this.expire >= 0) {
     task = memoize(task, this.expire);
   }
   this.cachedIndex = task; // lazy build
@@ -281,8 +280,8 @@ Jaccard.prototype.getIndex = function(sourceItem, targetItem) {
  * calculates a Jaccard index between a pair of Arrays.
  * Override this when you need any other index method than Jaccard index.
  *
- * @param sourceLog {Array}
- * @param targetLog {Array}
+ * @param sourceLog {Array.<string>}
+ * @param targetLog {Array.<string>}
  * @returns {number|undefined|Promise.<number|undefined>}
  * @example
  * var Jaccard = require("jaccard-index");
@@ -329,14 +328,14 @@ function count(shorterLog, longerLog) {
 }
 
 /**
- * returns a Jaccard index value to be placed at the result matrix.
+ * returns a Jaccard index value to be placed at the result.
  * This does nothing per default.
  * Override this function to apply a precision or another format.
  * Return null to ignore the index.
  *
  * @method
  * @param index {number} Jaccard index
- * @returns {number|Object|null}
+ * @returns {number|null|any}
  * @example
  * jaccard.filter = function(index) {
  *   return Math.filter(index * 1000) / 1000;
@@ -354,9 +353,9 @@ Jaccard.prototype.filter = through;
  */
 
 function wrap(task) {
-  if (this.throttle) {
+  if (this.throttle >= 0) {
     task = promisen.throttle(task, this.throttle, this.timeout);
-  } else if (this.timeout) {
+  } else if (this.timeout >= 0) {
     task = promisen.timeout(task, this.timeout);
   } else {
     task = promisen(task);
