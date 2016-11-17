@@ -161,46 +161,8 @@ Jaccard.prototype.cachedLog = function(itemId) {
  * }
  */
 
-Jaccard.prototype.getLog = getLog;
-
-/**
- * @private
- */
-
-function getLog(itemId) {
+Jaccard.prototype.getLog = function(itemId) {
   throw new Error("getLog method not implemented");
-}
-
-/**
- * @private
- */
-
-function _getLog(itemId) {
-  var logs = this.logs || (this.logs = {});
-  var row = logs[itemId];
-  if (row) return Object.keys(row);
-}
-
-/**
- * imports a transaction.
- * This generates getLog() method.
- *
- * @param itemId {string}
- * @param userId {string}
- */
-
-Jaccard.prototype.addLog = function(itemId, userId) {
-  var logs = this.logs;
-  if (!logs) {
-    if (this.getLog !== getLog) {
-      throw new Error("getLog method already implemented");
-    }
-    logs = this.logs = {};
-    this.getLog = _getLog;
-    this.getItems = _getItems;
-  }
-  var row = logs[itemId] || (logs[itemId] = {});
-  row[userId]++;
 };
 
 /**
@@ -215,14 +177,6 @@ Jaccard.prototype.getItems = function() {
 };
 
 /**
- * @private
- */
-
-function _getItems() {
-  if (this.logs) return Object.keys(this.logs);
-}
-
-/**
  * returns an Array of Jaccard index of each links.
  *
  * @param [sourceItems] {Array|Promise.<Array>} array of source items
@@ -235,7 +189,7 @@ Jaccard.prototype.getLinks = function(sourceItems, targetItems, onLink) {
   var that = this;
   var links;
   var check = {};
-  var wait = (that.wait != null) && promisen.wait(that.wait);
+  var wait = (that.wait >= 0) && promisen.wait(that.wait);
   var hasFilter = (that.filter !== through);
   var noDirection = !that.direction;
   if (!sourceItems) sourceItems = that.getItems;
@@ -259,14 +213,16 @@ Jaccard.prototype.getLinks = function(sourceItems, targetItems, onLink) {
 
       var job = that.cachedIndex(sourceItem, targetItem);
       if (hasFilter) job = job.then(filter);
-      return job.then(then).then(wait);
+      job = job.then(link);
+      if (wait) job = job.then(wait);
+      return job;
 
       function filter(index) {
         if (index == null) return;
         return that.filter(index, sourceItem, targetItem);
       }
 
-      function then(index) {
+      function link(index) {
         if (index == null) return;
         return onLink.call(that, index, sourceItem, targetItem);
       }
