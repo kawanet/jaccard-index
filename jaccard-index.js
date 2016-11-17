@@ -305,21 +305,28 @@ Jaccard.prototype.index = function(sourceLog, targetLog) {
   if (!sourceLen) return;
   if (!targetLen) return;
 
-  var shorterLog = (sourceLen < targetLen) ? sourceLog : targetLog;
-  var longerLog = (sourceLen < targetLen) ? targetLog : sourceLog;
+  var match = (sourceLen < targetLen) ? count(sourceLog, targetLog) : count(targetLog, sourceLog);
 
+  return match / (sourceLen + targetLen - match);
+};
+
+/**
+ * @private
+ */
+
+function count(shorterLog, longerLog) {
   var map = {};
   Array.prototype.forEach.call(shorterLog, function(userId) {
     map[userId] = 1;
   });
 
-  var match = 0;
+  var both = {};
   Array.prototype.forEach.call(longerLog, function(userId) {
-    if (map[userId]) match++;
+    if (map[userId]) both[userId] = 1;
   });
 
-  return match / (sourceLen + targetLen - match);
-};
+  return Object.keys(both).length;
+}
 
 /**
  * returns a Jaccard index value to be placed at the result matrix.
