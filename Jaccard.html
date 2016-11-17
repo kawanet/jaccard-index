@@ -213,24 +213,24 @@ var options = {
   getLog: getLog
 };
 
-Jaccard(options).getMatrix(items).then(showResult).catch(console.warn);
+Jaccard(options).getLinks(items).then(showResult).catch(console.warn);
 
 function getLog(itemId) {
   return Promise.resolve(logs[itemId]); // async
   // return logs[itemId]; // sync
 }
 
-function showResult(matrix) {
-  console.log(JSON.stringify(matrix, null, 2));
+function showResult(links) {
+  console.log(JSON.stringify(links, null, 2));
   process.exit(0);
 }
 
 // Result:
-// {
-//   "item1": {"item2": 0.25, "item3": 0.6666666666666666},
-//   "item2": {"item1": 0.25, "item3": 0.2},
-//   "item3": {"item1": 0.6666666666666666, "item2": 0.2}
-// }</code></pre>
+// [
+//   {"source": "item1", "target": "item2", "value": 0.25},
+//   {"source": "item1", "target": "item3", "value": 0.6666666666666666},
+//   {"source": "item2", "target": "item3", "value": 0.2}
+// ]</code></pre>
 
 
 
@@ -1136,7 +1136,7 @@ This calls getLog() method when the cache not available.
 
     
 
-    <h4 class="name" id="filter"><span class="type-signature"></span>filter<span class="signature">(index)</span><span class="type-signature"> &rarr; {number|Object}</span></h4>
+    <h4 class="name" id="filter"><span class="type-signature"></span>filter<span class="signature">(index)</span><span class="type-signature"> &rarr; {number|Object|null}</span></h4>
 
     
 
@@ -1277,6 +1277,9 @@ Return null to ignore the index.
 |
 
 <span class="param-type">Object</span>
+|
+
+<span class="param-type">null</span>
 
 
     </dd>
@@ -1575,6 +1578,239 @@ Override this only when needed.
 
     
 
+    <h4 class="name" id="getLinks"><span class="type-signature"></span>getLinks<span class="signature">(sourceItems<span class="signature-attributes">opt</span>, targetItems<span class="signature-attributes">opt</span>, onLink<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;Array>}</span></h4>
+
+    
+
+
+
+<div class="description">
+    returns an Array of Jaccard index of each links.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>sourceItems</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+|
+
+<span class="param-type">Promise.&lt;Array></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">array of source items</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>targetItems</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+|
+
+<span class="param-type">Promise.&lt;Array></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">array of target items</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>onLink</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">function(index, sourceItem, targetItem) {...}</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;Array></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
     <h4 class="name" id="getLog"><span class="type-signature"></span>getLog<span class="signature">(itemId)</span><span class="type-signature"> &rarr; {Array|Promise.&lt;Array>}</span></h4>
 
     
@@ -1742,239 +1978,6 @@ function getLog(itemId) {
     });
   });
 }</code></pre>
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="getMatrix"><span class="type-signature"></span>getMatrix<span class="signature">(sourceItems<span class="signature-attributes">opt</span>, targetItems<span class="signature-attributes">opt</span>, stream<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;Object>}</span></h4>
-
-    
-
-
-
-<div class="description">
-    returns a matrix of Jaccard index for items given.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>sourceItems</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Array</span>
-|
-
-<span class="param-type">Promise.&lt;Array></span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">array of source items</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>targetItems</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Array</span>
-|
-
-<span class="param-type">Promise.&lt;Array></span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">array of target items</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>stream</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">WritableStream</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">stream to write links</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise.&lt;Object></span>
-
-
-    </dd>
-</dl>
-
-    
 
 
 
