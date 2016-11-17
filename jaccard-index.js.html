@@ -189,46 +189,8 @@ Jaccard.prototype.cachedLog = function(itemId) {
  * }
  */
 
-Jaccard.prototype.getLog = getLog;
-
-/**
- * @private
- */
-
-function getLog(itemId) {
+Jaccard.prototype.getLog = function(itemId) {
   throw new Error("getLog method not implemented");
-}
-
-/**
- * @private
- */
-
-function _getLog(itemId) {
-  var logs = this.logs || (this.logs = {});
-  var row = logs[itemId];
-  if (row) return Object.keys(row);
-}
-
-/**
- * imports a transaction.
- * This generates getLog() method.
- *
- * @param itemId {string}
- * @param userId {string}
- */
-
-Jaccard.prototype.addLog = function(itemId, userId) {
-  var logs = this.logs;
-  if (!logs) {
-    if (this.getLog !== getLog) {
-      throw new Error("getLog method already implemented");
-    }
-    logs = this.logs = {};
-    this.getLog = _getLog;
-    this.getItems = _getItems;
-  }
-  var row = logs[itemId] || (logs[itemId] = {});
-  row[userId]++;
 };
 
 /**
@@ -243,14 +205,6 @@ Jaccard.prototype.getItems = function() {
 };
 
 /**
- * @private
- */
-
-function _getItems() {
-  if (this.logs) return Object.keys(this.logs);
-}
-
-/**
  * returns an Array of Jaccard index of each links.
  *
  * @param [sourceItems] {Array|Promise.&lt;Array>} array of source items
@@ -263,7 +217,7 @@ Jaccard.prototype.getLinks = function(sourceItems, targetItems, onLink) {
   var that = this;
   var links;
   var check = {};
-  var wait = (that.wait != null) &amp;&amp; promisen.wait(that.wait);
+  var wait = (that.wait >= 0) &amp;&amp; promisen.wait(that.wait);
   var hasFilter = (that.filter !== through);
   var noDirection = !that.direction;
   if (!sourceItems) sourceItems = that.getItems;
@@ -287,14 +241,16 @@ Jaccard.prototype.getLinks = function(sourceItems, targetItems, onLink) {
 
       var job = that.cachedIndex(sourceItem, targetItem);
       if (hasFilter) job = job.then(filter);
-      return job.then(then).then(wait);
+      job = job.then(link);
+      if (wait) job = job.then(wait);
+      return job;
 
       function filter(index) {
         if (index == null) return;
         return that.filter(index, sourceItem, targetItem);
       }
 
-      function then(index) {
+      function link(index) {
         if (index == null) return;
         return onLink.call(that, index, sourceItem, targetItem);
       }
@@ -377,21 +333,28 @@ Jaccard.prototype.index = function(sourceLog, targetLog) {
   if (!sourceLen) return;
   if (!targetLen) return;
 
-  var shorterLog = (sourceLen &lt; targetLen) ? sourceLog : targetLog;
-  var longerLog = (sourceLen &lt; targetLen) ? targetLog : sourceLog;
+  var match = (sourceLen &lt; targetLen) ? count(sourceLog, targetLog) : count(targetLog, sourceLog);
 
+  return match / (sourceLen + targetLen - match);
+};
+
+/**
+ * @private
+ */
+
+function count(shorterLog, longerLog) {
   var map = {};
   Array.prototype.forEach.call(shorterLog, function(userId) {
     map[userId] = 1;
   });
 
-  var match = 0;
+  var both = {};
   Array.prototype.forEach.call(longerLog, function(userId) {
-    if (map[userId]) match++;
+    if (map[userId]) both[userId] = 1;
   });
 
-  return match / (sourceLen + targetLen - match);
-};
+  return Object.keys(both).length;
+}
 
 /**
  * returns a Jaccard index value to be placed at the result matrix.
