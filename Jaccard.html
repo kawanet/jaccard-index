@@ -47,7 +47,7 @@
 
 
 <div class="description">
-    Promise-based Jaccard similarity coefficient index matrix calculation framework
+    Promise-based Jaccard similarity coefficient index calculation framework
 </div>
 
 
@@ -258,7 +258,7 @@ function showResult(links) {
 
 
 <div class="description">
-    False when source and target are swappable.
+    Set false when source and target are swappable.
 Set true when they have a direction.
 </div>
 
@@ -330,15 +330,14 @@ Set true when they have a direction.
 
         
             
-<h4 class="name" id="expire"><span class="type-signature"></span>expire<span class="type-signature"> :number</span></h4>
+<h4 class="name" id="expire"><span class="type-signature"></span>expire<span class="type-signature"> :number|null</span></h4>
 
 
 
 
 <div class="description">
-    Time in millisecond to expire caches used in this module.
-One minute per default.
-Set null to disable the cache.
+    Time in millisecond to expire cached results.
+Set null to disable the cache feature.
 </div>
 
 
@@ -348,6 +347,9 @@ Set null to disable the cache.
         <li>
             
 <span class="param-type">number</span>
+|
+
+<span class="param-type">null</span>
 
 
         </li>
@@ -384,7 +386,7 @@ Set null to disable the cache.
     
     <dt class="tag-default">Default Value:</dt>
     <dd class="tag-default"><ul class="dummy">
-            <li>60000</li>
+            <li>null</li>
         </ul></dd>
     
 
@@ -409,7 +411,7 @@ Set null to disable the cache.
 
         
             
-<h4 class="name" id="throttle"><span class="type-signature"></span>throttle<span class="type-signature"> :number</span></h4>
+<h4 class="name" id="throttle"><span class="type-signature"></span>throttle<span class="type-signature"> :number|null</span></h4>
 
 
 
@@ -428,6 +430,9 @@ Set null to disable the throttle.
         <li>
             
 <span class="param-type">number</span>
+|
+
+<span class="param-type">null</span>
 
 
         </li>
@@ -489,14 +494,13 @@ Set null to disable the throttle.
 
         
             
-<h4 class="name" id="timeout"><span class="type-signature"></span>timeout<span class="type-signature"> :number</span></h4>
+<h4 class="name" id="timeout"><span class="type-signature"></span>timeout<span class="type-signature"> :number|null</span></h4>
 
 
 
 
 <div class="description">
-    Timeout in millisecond until receiving result.
-One minute per default.
+    Timeout in millisecond until receiving a result.
 Set null to disable the timeout.
 </div>
 
@@ -507,6 +511,9 @@ Set null to disable the timeout.
         <li>
             
 <span class="param-type">number</span>
+|
+
+<span class="param-type">null</span>
 
 
         </li>
@@ -543,7 +550,7 @@ Set null to disable the timeout.
     
     <dt class="tag-default">Default Value:</dt>
     <dd class="tag-default"><ul class="dummy">
-            <li>60000</li>
+            <li>null</li>
         </ul></dd>
     
 
@@ -568,14 +575,14 @@ Set null to disable the timeout.
 
         
             
-<h4 class="name" id="wait"><span class="type-signature"></span>wait<span class="type-signature"> :number|undefined</span></h4>
+<h4 class="name" id="wait"><span class="type-signature"></span>wait<span class="type-signature"> :number|null</span></h4>
 
 
 
 
 <div class="description">
     Time in millisecond to wait between each calculating iteration to avoid Node process locked.
-Set null to disable any wait.
+Set null to disable any additional wait.
 </div>
 
 
@@ -587,7 +594,7 @@ Set null to disable any wait.
 <span class="param-type">number</span>
 |
 
-<span class="param-type">undefined</span>
+<span class="param-type">null</span>
 
 
         </li>
@@ -981,14 +988,14 @@ This calls getLog() method when the cache not available.
 
     
 
-    <h4 class="name" id="filter"><span class="type-signature"></span>filter<span class="signature">(index)</span><span class="type-signature"> &rarr; {number|Object|null}</span></h4>
+    <h4 class="name" id="filter"><span class="type-signature"></span>filter<span class="signature">(index)</span><span class="type-signature"> &rarr; {number|null|any}</span></h4>
 
     
 
 
 
 <div class="description">
-    returns a Jaccard index value to be placed at the result matrix.
+    returns a Jaccard index value to be placed at the result.
 This does nothing per default.
 Override this function to apply a precision or another format.
 Return null to ignore the index.
@@ -1121,10 +1128,10 @@ Return null to ignore the index.
 <span class="param-type">number</span>
 |
 
-<span class="param-type">Object</span>
+<span class="param-type">null</span>
 |
 
-<span class="param-type">null</span>
+<span class="param-type">any</span>
 
 
     </dd>
@@ -1322,14 +1329,14 @@ Return null to ignore the index.
 
     
 
-    <h4 class="name" id="getItems"><span class="type-signature"></span>getItems<span class="signature">()</span><span class="type-signature"> &rarr; {Array}</span></h4>
+    <h4 class="name" id="getItems"><span class="type-signature"></span>getItems<span class="signature">()</span><span class="type-signature"> &rarr; {Array.&lt;string>}</span></h4>
 
     
 
 
 
 <div class="description">
-    returns array of items.
+    returns array of all items.
 Override this only when needed.
 </div>
 
@@ -1408,7 +1415,7 @@ Override this only when needed.
     </dt>
     <dd>
         
-<span class="param-type">Array</span>
+<span class="param-type">Array.&lt;string></span>
 
 
     </dd>
@@ -1474,7 +1481,7 @@ Override this only when needed.
             <td class="type">
             
                 
-<span class="param-type">Array</span>
+<span class="param-type">Array.&lt;string></span>
 |
 
 <span class="param-type">Promise.&lt;Array></span>
@@ -1510,7 +1517,7 @@ Override this only when needed.
             <td class="type">
             
                 
-<span class="param-type">Array</span>
+<span class="param-type">Array.&lt;string></span>
 |
 
 <span class="param-type">Promise.&lt;Array></span>
@@ -1656,7 +1663,7 @@ Override this only when needed.
 
     
 
-    <h4 class="name" id="getLog"><span class="type-signature"></span>getLog<span class="signature">(itemId)</span><span class="type-signature"> &rarr; {Array|Promise.&lt;Array>}</span></h4>
+    <h4 class="name" id="getLog"><span class="type-signature"></span>getLog<span class="signature">(itemId)</span><span class="type-signature"> &rarr; {Array.&lt;string>|Promise.&lt;Array>}</span></h4>
 
     
 
@@ -1664,7 +1671,7 @@ Override this only when needed.
 
 <div class="description">
     retrieves a log array.
-Overriding this method is required before calling getMatrix() or getIndex() methods.
+Overriding this method is required before calling getLinks() or getIndex() methods.
 </div>
 
 
@@ -1791,7 +1798,7 @@ Overriding this method is required before calling getMatrix() or getIndex() meth
     </dt>
     <dd>
         
-<span class="param-type">Array</span>
+<span class="param-type">Array.&lt;string></span>
 |
 
 <span class="param-type">Promise.&lt;Array></span>
@@ -1807,6 +1814,7 @@ Overriding this method is required before calling getMatrix() or getIndex() meth
     
     <pre class="prettyprint"><code>var fs = require("fs");
 var Jaccard = require("jaccard-index");
+
 var jaccard = Jaccard();
 
 jaccard.getLog = getLog;
@@ -1881,7 +1889,7 @@ Override this when you need any other index method than Jaccard index.
             <td class="type">
             
                 
-<span class="param-type">Array</span>
+<span class="param-type">Array.&lt;string></span>
 
 
             
@@ -1904,7 +1912,7 @@ Override this when you need any other index method than Jaccard index.
             <td class="type">
             
                 
-<span class="param-type">Array</span>
+<span class="param-type">Array.&lt;string></span>
 
 
             
