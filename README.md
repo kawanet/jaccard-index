@@ -99,13 +99,16 @@ $ jaccard-index --csv node_modules/jaccard-index/test/example/*.txt
 
 ## SEE ALSO
 
-### JSDoc
+### Documentation
 
 - [https://kawanet.github.io/jaccard-index/Jaccard.html](https://kawanet.github.io/jaccard-index/Jaccard.html)
 
 ### NPM
 
 - [https://www.npmjs.com/package/jaccard-index](https://www.npmjs.com/package/jaccard-index)
+- [https://www.npmjs.com/package/jaccard-stream](https://www.npmjs.com/package/jaccard-stream)
+- [https://www.npmjs.com/package/jaccard](https://www.npmjs.com/package/jaccard)
+- [https://www.npmjs.com/package/multiset-jaccard](https://www.npmjs.com/package/multiset-jaccard)
 
 ### GitHub
 
